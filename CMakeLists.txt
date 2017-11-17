@@ -9,6 +9,10 @@ cmake_minimum_required (VERSION 2.6)
 set(name "CameraUtil")
 project ( ${name} )
 
+SET(CMAKE_C_COMPILER gcc-5)
+SET(CMAKE_CXX_COMPILER g++-5)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 #opencv 
 if ( WIN32 )
 	set(OpenCV_DIR "E:/libs/OpenCV/x64/vc14/lib")
@@ -25,9 +29,9 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 # pointgrey camera sdk
 set(USE_PTGREY_CAMERA on)
 if (USE_PTGREY_CAMERA)
-	set(PTGREY_SDK_INCLUDE_DIR "C:/Program Files/Point Grey Research/Spinnaker/include")
-	set(PTGREY_SDK_LIBRARY_DEBUG "C:/Program Files/Point Grey Research/Spinnaker/lib64/vs2015/Spinnakerd_v140.lib")
-	set(PTGREY_SDK_LIBRARY_RELEASE "C:/Program Files/Point Grey Research/Spinnaker/lib64/vs2015/Spinnaker_v140.lib")
+	set(PTGREY_SDK_INCLUDE_DIR "~/Downloads/spinnaker_1_5_0_27_amd64/include")
+	set(PTGREY_SDK_LIBRARY_DEBUG "~/Downloads/spinnaker_1_5_0_27_amd64/lib/libSpinnaker.so")
+	set(PTGREY_SDK_LIBRARY_RELEASE "~/Downloads/spinnaker_1_5_0_27_amd64/lib/libSpinnaker.so")
 endif()
 include_directories(${PTGREY_SDK_INCLUDE_DIR})
 
