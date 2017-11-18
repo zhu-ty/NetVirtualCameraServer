@@ -163,7 +163,7 @@ int CameraUtil::release() {
 /**
 @brief parallel capture function
 */
-void parallel_capture_(Spinnaker::CameraPtr & pCam, cv::Mat & img) {
+void parallel_capture_(Spinnaker::CameraPtr pCam, cv::Mat & img) {
 	// capture
 	Spinnaker::ImagePtr image = pCam->GetNextImage();
 	void* data = image->GetData();
@@ -179,7 +179,7 @@ int CameraUtil::capture(std::vector<cv::Mat> & imgs) {
 	std::vector<std::thread> ths;
 	// start thread
 	for (size_t i = 0; i < numCameras; i++) {
-		ths.push_back(std::thread(parallel_capture_, camList.GetByIndex(i), imgs[i]));
+		ths.push_back(std::thread(parallel_capture_, camList.GetByIndex(i), std::ref(imgs[i])));
 	}
 	// stop thread
 	for (size_t i = 0; i < numCameras; i++) {
