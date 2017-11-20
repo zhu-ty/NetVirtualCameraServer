@@ -7,6 +7,8 @@
 #ifndef __GIGA_RENDER_CAMERA_ARRAY__
 #define __GIGA_RENDER_CAMERA_ARRAY__
 
+#define WIDTH 4000
+#define HEIGHT 3000
 
 // camera utility
 #include "CameraUtil.h"

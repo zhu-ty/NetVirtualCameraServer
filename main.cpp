@@ -5,6 +5,7 @@
 #include "NPPJpegCoderKernel.h"
 
 #include <time.h>
+d
 
 #define MEASURE_KERNEL_TIME
 
@@ -29,12 +30,12 @@ int main(int argc, char* argv[]) {
 	for (size_t i = 0; i < cameraNum; i++) {
 		cv::Mat img = cv::imread(cv::format("local_%02d.jpg", i));
 		bayerimgs[i] = NPPJpegCoderKernel::bgr2bayerRG(img);
-		cudaMalloc(&imgs[i], sizeof(unsigned char*) * 4000 * 3000);
+		cudaMalloc(&imgs[i], sizeof(unsigned char*) * WIDTH * HEIGHT);
 	}
 
 	std::vector<npp::NPPJpegCoder> coders(cameraNum);
 	for (size_t i = 0; i < cameraNum; i++) {
-		coders[i].init(4000, 3000, 75);
+		coders[i].init(WIDTH, HEIGHT, 75);
 	}
 
 	std::vector<unsigned char*> tempJpegdatas(cameraNum);
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
 
 	// upload
 	for (size_t i = 0; i < cameraNum; i++) {
-		cudaMemcpyAsync(imgs[i], bayerimgs[i].data, sizeof(unsigned char) * 4000 * 3000,
+		cudaMemcpyAsync(imgs[i], bayerimgs[i].data, sizeof(unsigned char) * WIDTH * HEIGHT,
 			cudaMemcpyHostToDevice, streams[i]);
 	}
 

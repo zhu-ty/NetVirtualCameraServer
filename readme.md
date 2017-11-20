@@ -2,7 +2,7 @@
 
 ## Updated Oct 14, 2017
 add NPPJpegCoder class. Now this code can capture images and compress them in jpeg format in real time. 
-- GTX 1070 costs 50ms to compress 8 4000x3000 images
+- GTX 1070 costs 50ms to compress 8 WIDTHxHEIGHT images
 - GTX 1080Ti + i7 6800 could capture 8 images and compress them in about 40ms
 
 ## Libraries

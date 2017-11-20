@@ -23,7 +23,7 @@ int CameraArray::init() {
 	// init compression coderes
 	coders.resize(camutil.getCameraNum());
 	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
-		coders[i].init(4000, 3000, 75);
+		coders[i].init(WIDTH, HEIGHT, 75);
 	}
 	return 0;
 }
@@ -50,7 +50,7 @@ int CameraArray::allocateBuffer(int frameNum) {
 	for (size_t i = 0; i < frameNum; i++) {
 		bufferImgs[i].resize(camutil.getCameraNum());
 		for (size_t j = 0; j < camutil.getCameraNum(); j++) {
-			bufferImgs[i][j].create(3000, 4000, CV_8U);
+			bufferImgs[i][j].create(HEIGHT, WIDTH, CV_8U);
 		}
 	}
 	this->frameNum = frameNum;
@@ -199,7 +199,7 @@ int CameraArray::startRecordJPEG(int fps) {
 	// init temp image buffer
 	std::vector<cv::Mat> tempImg(camutil.getCameraNum());
 	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
-		tempImg[i].create(3000, 4000, CV_8UC1);
+		tempImg[i].create(HEIGHT, WIDTH, CV_8UC1);
 	}
 	// init temp jpeg compression data buffer
 	tempJpegdata.resize(camutil.getCameraNum());
@@ -214,7 +214,7 @@ int CameraArray::startRecordJPEG(int fps) {
 	// init gpu bayer image memory
 	std::vector<unsigned char*> bayer_img_ds(camutil.getCameraNum());
 	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
-		cudaMalloc(&bayer_img_ds[i], sizeof(unsigned char) * 4000 * 3000);
+		cudaMalloc(&bayer_img_ds[i], sizeof(unsigned char) * WIDTH * HEIGHT);
 	}
 	// start recording
 	for (;;) {
@@ -225,7 +225,7 @@ int CameraArray::startRecordJPEG(int fps) {
 		// copy data to gpu
 		for (size_t i = 0; i < camutil.getCameraNum(); i++) {
 			cudaMemcpyAsync(bayer_img_ds[i], tempImg[i].data, 
-				sizeof(unsigned char) * 4000 * 3000, 
+				sizeof(unsigned char) * WIDTH * HEIGHT, 
 				cudaMemcpyHostToDevice, streams[i]);			
 		}
 		// compression
@@ -264,7 +264,7 @@ int CameraArray::startRecordJPEG(int fps) {
 int CameraArray::saveCapture(std::string dir) {
 	for (size_t j = 0; j < bufferImgs[0].size(); j++) {
 		cv::VideoWriter writer(cv::format("%s/cam_%02d.avi", dir.c_str(), j), 
-			cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), 12, cv::Size(4000, 3000), true);
+			cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), 12, cv::Size(WIDTH, HEIGHT), true);
 		for (size_t i = 0; i < bufferImgs.size(); i++) {
 			cv::Mat imgcolor = CameraUtilKernel::demosaic(bufferImgs[i][j]);
 			//cv::imwrite(cv::format("%s/cam_%02d_frame_%05d.jpg", dir.c_str(), j, i), imgcolor);
@@ -281,7 +281,7 @@ int CameraArray::saveCapture(std::string dir) {
 int CameraArray::saveCaptureJPEGCompressed(std::string dir) {
 	for (size_t j = 0; j < jpegdatas[0].size(); j++) {
 		std::string videoname = cv::format("%s/video_%02d_scale.avi", dir.c_str(), j);
-		cv::VideoWriter writer(videoname, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), 12, cv::Size(4000, 3000), true);
+		cv::VideoWriter writer(videoname, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), 12, cv::Size(WIDTH, HEIGHT), true);
 		for (size_t i = 0; i < jpegdatas.size(); i++) {
 			//std::ofstream outputFile(name.c_str(), std::ios::out | std::ios::binary);
 			//outputFile.write(jpegdatas[i][j], jpegdatalength[i][j]);
