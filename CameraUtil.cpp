@@ -130,7 +130,7 @@ int CameraUtil::init() {
 	}
 	// start capture
 	this->startCapture();
-	
+
 	return 0;
 }
 
@@ -202,11 +202,11 @@ int CameraUtil::setWhiteBalance(int ind, float red, float blue) {
 	Spinnaker::GenApi::CFloatPtr balanceRatio = nodeMap.GetNode("BalanceRatio");
 	//Spinnaker::GenApi::CEnumerationPtr balanceWhiteAuto = nodeMap.GetNode("BalanceWhiteAuto");
 	//balanceWhiteAuto->SetIntValue(balanceWhiteAuto->GetEntryByName("Off")->GetValue());
-	Spinnaker::GenApi::CEnumerationPtr balanceRatioSelector = nodeMap.GetNode("BalanceRatioSelector");
-	balanceRatioSelector->SetIntValue(balanceRatioSelector->GetEntryByName("Blue")->GetValue());
-	balanceRatio->SetValue(blue);
-	balanceRatioSelector->SetIntValue(balanceRatioSelector->GetEntryByName("Red")->GetValue());
-	balanceRatio->SetValue(red);
+	//Spinnaker::GenApi::CEnumerationPtr balanceRatioSelector = nodeMap.GetNode("BalanceRatioSelector");
+	//balanceRatioSelector->SetIntValue(balanceRatioSelector->GetEntryByName("Blue")->GetValue());
+	//balanceRatio->SetValue(blue);
+	//balanceRatioSelector->SetIntValue(balanceRatioSelector->GetEntryByName("Red")->GetValue());
+	//balanceRatio->SetValue(red);
 	return 0;
 }
 

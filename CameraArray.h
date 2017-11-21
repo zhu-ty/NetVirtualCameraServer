@@ -1,14 +1,14 @@
 /**
 @brief C++ header file of camera array class
-@author: Shane Yuan 
+@author: Shane Yuan
 @date: Sep 2, 2017
 */
 
 #ifndef __GIGA_RENDER_CAMERA_ARRAY__
 #define __GIGA_RENDER_CAMERA_ARRAY__
 
-#define WIDTH 4000
-#define HEIGHT 3000
+#define WIDTH 1024
+#define HEIGHT 1024
 
 // camera utility
 #include "CameraUtil.h"

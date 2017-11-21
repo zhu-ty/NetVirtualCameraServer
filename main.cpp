@@ -5,7 +5,6 @@
 #include "NPPJpegCoderKernel.h"
 
 #include <time.h>
-d
 
 #define MEASURE_KERNEL_TIME
 
@@ -14,16 +13,16 @@ int main(int argc, char* argv[]) {
 	array.init();
 	array.setWhiteBalance(1.10f, 1.65f);
 	//array.allocateBuffer(20);
-	array.allocateBufferJPEG(2000);
+	array.allocateBufferJPEG(400);
 	//array.startRecord(12);
-	array.startRecordJPEG(12);
+	array.startRecordJPEG(40);
 	//array.saveCapture("E:\\Project\\CameraUtil\\data");
-	array.saveCaptureJPEGCompressed("E:\\Project\\CameraUtil\\data");
+	array.saveCaptureJPEGCompressed("./data/");
 	array.release();
 
 	return 0;
 
-	size_t cameraNum = 8;
+	size_t cameraNum = 1;
 
 	std::vector<cv::Mat> bayerimgs(cameraNum);
 	std::vector<unsigned char*> imgs(cameraNum);
@@ -99,6 +98,7 @@ int main(int argc, char* argv[]) {
 
 	for (size_t i = 0; i < cameraNum; i++) {
 		std::string name = cv::format("compresse_%02d.jpg", i);
+		std::cout << "Save to " << name << std::endl;
 		std::ofstream outputFile(name.c_str(), std::ios::out | std::ios::binary);
 		outputFile.write(jpegdatas[i], dataLengths[i]);
 	}
