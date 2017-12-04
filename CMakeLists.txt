@@ -59,6 +59,7 @@ set(MY_HEADER_FILES
     # Communication
     communication.h
     common.h
+    cameraControl.h
 )
 
 set(MY_SOURCE_FILES 
@@ -69,6 +70,7 @@ set(MY_SOURCE_FILES
 	NPPJpegCoder.cpp
     # communication
     communication.cpp
+    cameraControl.h
 	# cuda source file
 	cuda/CameraUtilKernel.cu
 	cuda/NPPJpegCoderKernel.cu

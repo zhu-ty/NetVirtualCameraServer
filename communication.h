@@ -16,6 +16,7 @@
 #include <sys/epoll.h>
 
 #include "common.h"
+#include "cameraControl.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -464,7 +465,7 @@ private:
     bool VerifyOpenCamera(CameraOpenCameraPackage &_data);
     bool VerifyCloseCamera(CameraCloseCameraPackage &_data);
     bool VerifyTriggerContinous(CameraTriggerContinousPackage &_data);
-     bool VerifyTriggerSingle(CameraTriggerSinglePackage &_data);
+	bool VerifyTriggerSingle(CameraTriggerSinglePackage &_data);
     bool VerifyResetId(CameraResetIdPackage &_data);
     bool VerifyGetImage(CameraGetImagePackage &_data);
 };
