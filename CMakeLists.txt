@@ -70,7 +70,7 @@ set(MY_SOURCE_FILES
 	NPPJpegCoder.cpp
     # communication
     communication.cpp
-    cameraControl.h
+    cameraControl.cpp
 	# cuda source file
 	cuda/CameraUtilKernel.cu
 	cuda/NPPJpegCoderKernel.cu

@@ -87,6 +87,14 @@ public:
 	*/
 	int startRecordJPEG(int fps);
 
+
+	/**
+	@brief capture one jepg frame
+	@return bool
+	SHADOWK
+	*/
+	bool CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<char*>& JpegImgs);
+
 	/**
 	@brief preview capture
 	*/

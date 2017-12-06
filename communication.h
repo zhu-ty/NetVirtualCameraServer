@@ -402,7 +402,7 @@ class CommunicationThread:public PThreadClass
 {
 public:
     //CommunicationThread(CommunicationMessageDeque *_communicationMessageDeque,CameraServerUnit *_cameraServerUnit,CameraControlMessageDeque *_cameraControlMessageDeque);
-    CommunicationThread(CommunicationMessageDeque *_communicationMessageDeque);
+    CommunicationThread(CommunicationMessageDeque *_communicationMessageDeque ,CameraControlMessageDeque *_cameraControlMessageDeque);
     ~CommunicationThread();
 
     virtual int Run(void);
@@ -416,7 +416,7 @@ private:
     ///相机参数和消息队列入口
     CommunicationMessageDeque *communicationMessageDeque_;
     //CameraServerUnit *cameraServerUnit_;
-    //CameraControlMessageDeque *cameraControlMessageDeque_;
+    CameraControlMessageDeque *cameraControlMessageDeque_;
 
     int PrintMachineInfo(void);
     int MakeSocketNonBlocking(int _socketFd);
@@ -427,8 +427,12 @@ private:
 class SocketThread:public PThreadClass
 {
 public:
-    //SocketThread(int _newServerFd,string _clientIp,int16_t _clientPort,CommunicationMessageDeque *_communicationMessageDeque,CameraServerUnit *_cameraServerUnit,CameraControlMessageDeque *_cameraControlMessageDeque);
-    SocketThread(int _newServerFd,string _clientIp,int16_t _clientPort,CommunicationMessageDeque *_communicationMessageDeque);
+    //SocketThread(int _newServerFd,string _clientIp,int16_t _clientPort,
+    // CommunicationMessageDeque *_communicationMessageDeque,
+    // CameraServerUnit *_cameraServerUnit,CameraControlMessageDeque *_cameraControlMessageDeque);
+    SocketThread(int _newServerFd,string _clientIp,int16_t _clientPort,
+    	CommunicationMessageDeque *_communicationMessageDeque,
+    	CameraControlMessageDeque *_cameraControlMessageDeque);
     ~SocketThread();
 
     virtual int Run(void);
@@ -451,7 +455,7 @@ private:
     ///相机参数和消息队列入口
     CommunicationMessageDeque *communicationMessageDeque_;
     //CameraServerUnit *cameraServerUnit_;
-    //CameraControlMessageDeque *cameraControlMessageDeque_;
+    CameraControlMessageDeque *cameraControlMessageDeque_;
 
     int MakeSocketNonBlocking(int _socketFd);
 
@@ -460,13 +464,13 @@ private:
 
     ///以下为检验各命令并超时等待相机控制线程反馈，同时将反馈数据装载到sendPackage_;
     ///该命令将会改变cameraServerUnit_的值
-    bool VerifyOpenBox(CameraOpenBoxPackage &_data);
-    bool VerifyCloseBox(CameraCloseBoxPackage &_data );
+    //bool VerifyOpenBox(CameraOpenBoxPackage &_data);
+    //bool VerifyCloseBox(CameraCloseBoxPackage &_data );
     bool VerifyOpenCamera(CameraOpenCameraPackage &_data);
     bool VerifyCloseCamera(CameraCloseCameraPackage &_data);
-    bool VerifyTriggerContinous(CameraTriggerContinousPackage &_data);
-	bool VerifyTriggerSingle(CameraTriggerSinglePackage &_data);
-    bool VerifyResetId(CameraResetIdPackage &_data);
+    //bool VerifyTriggerContinous(CameraTriggerContinousPackage &_data);
+	//bool VerifyTriggerSingle(CameraTriggerSinglePackage &_data);
+    //bool VerifyResetId(CameraResetIdPackage &_data);
     bool VerifyGetImage(CameraGetImagePackage &_data);
 };
 

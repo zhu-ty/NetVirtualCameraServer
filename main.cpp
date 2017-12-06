@@ -1,6 +1,10 @@
 #include "CameraUtil.h"
 #include "CameraArray.h"
 
+#include "common.h"
+#include "cameraControl.h"
+#include "communication.h"
+
 #include "NPPJpegCoder.h"
 #include "NPPJpegCoderKernel.h"
 
@@ -9,99 +13,49 @@
 #define MEASURE_KERNEL_TIME
 
 int main(int argc, char* argv[]) {
-	CameraArray array;
-	array.init();
-	array.setWhiteBalance(1.10f, 1.65f);
-	//array.allocateBuffer(20);
-	array.allocateBufferJPEG(400);
-	//array.startRecord(12);
-	array.startRecordJPEG(40);
-	//array.saveCapture("E:\\Project\\CameraUtil\\data");
-	array.saveCaptureJPEGCompressed("./data/");
-	array.release();
+	 CameraArray array;
+	// array.init();
+	// array.setWhiteBalance(1.10f, 1.65f);
+	// //array.allocateBuffer(20);
+	// array.allocateBufferJPEG(400);
+	// //array.startRecord(12);
+	// array.startRecordJPEG(40);
+	// //array.saveCapture("E:\\Project\\CameraUtil\\data");
+	// array.saveCaptureJPEGCompressed("./data/");
+	// array.release();
 
-	return 0;
+	cout<< "[ACTION] Camera driver start!" << endl;
+    syslog(LOG_INFO, "[ACTION] Camera driver start!\n");
 
-	size_t cameraNum = 1;
+    ///相机控制线程参数和消息队列
+    //CameraServerUnit   *cameraServerUnit=new CameraServerUnit();
+    CameraControlMessageDeque *cameraControlMessageDeque=new CameraControlMessageDeque();
 
-	std::vector<cv::Mat> bayerimgs(cameraNum);
-	std::vector<unsigned char*> imgs(cameraNum);
-	for (size_t i = 0; i < cameraNum; i++) {
-		cv::Mat img = cv::imread(cv::format("local_%02d.jpg", i));
-		bayerimgs[i] = NPPJpegCoderKernel::bgr2bayerRG(img);
-		cudaMalloc(&imgs[i], sizeof(unsigned char*) * WIDTH * HEIGHT);
-	}
+    ///通信线程消息队列
+    CommunicationMessageDeque *communicationMessageDeque=new CommunicationMessageDeque();
 
-	std::vector<npp::NPPJpegCoder> coders(cameraNum);
-	for (size_t i = 0; i < cameraNum; i++) {
-		coders[i].init(WIDTH, HEIGHT, 75);
-	}
+    ///键盘控制线程消息队列
+    //KeyboardMessageDeque  *keyboardMessageDeque=new KeyboardMessageDeque();
 
-	std::vector<unsigned char*> tempJpegdatas(cameraNum);
-	std::vector<char*> jpegdatas(cameraNum);
-	std::vector<int> dataLengths(cameraNum);
-	std::vector<cudaStream_t> streams(cameraNum);
+    ///注册并启动各线程
+    CameraControlThread cameraControlThread(&array, cameraControlMessageDeque);
+    CommunicationThread communicationThread(communicationMessageDeque,cameraControlMessageDeque);
+    //KeyboardControlThread keyboardControlThread(keyboardMessageDeque,cameraControlMessageDeque,communicationMessageDeque);
 
-	for (size_t i = 0; i < cameraNum; i++) {
-		cudaStreamCreate(&streams[i]);
-		tempJpegdatas[i] = new unsigned char[1024 * 1024 * 10];
-	}
+    ///等待各线程退出
+    cameraControlThread.WaitForInternalThreadToExit();
+    communicationThread.WaitForInternalThreadToExit();
+    //keyboardControlThread.WaitForInternalThreadToExit();
 
+    SleepMs(500);
+    //delete cameraServerUnit;
+    delete cameraControlMessageDeque;
+    delete communicationMessageDeque;
+    //delete keyboardMessageDeque;
 
-	clock_t start, end;
-	start = clock();
-
-	// upload
-	for (size_t i = 0; i < cameraNum; i++) {
-		cudaMemcpyAsync(imgs[i], bayerimgs[i].data, sizeof(unsigned char) * WIDTH * HEIGHT,
-			cudaMemcpyHostToDevice, streams[i]);
-	}
-
-	// compression
-#ifdef MEASURE_KERNEL_TIME
-	cudaEvent_t cudastart, cudastop;
-	float elapsedTime;
-	cudaEventCreate(&cudastart);
-	cudaEventRecord(cudastart, 0);
-#endif
-
-	for (size_t i = 0; i < cameraNum; i++) {
-		// synchronization
-		cudaStreamSynchronize(streams[i]);
-		int dataLength;
-		coders[i].encode(imgs[i], tempJpegdatas[i], &dataLength, streams[i]);
-		dataLengths[i] = dataLength;
-	}
-
-	for (size_t i = 0; i < cameraNum; i++) {
-		// synchronization
-		cudaStreamSynchronize(streams[i]);
-	}
-
-#ifdef MEASURE_KERNEL_TIME
-	cudaEventCreate(&cudastop);
-	cudaEventRecord(cudastop, 0);
-	cudaEventSynchronize(cudastop);
-	cudaEventElapsedTime(&elapsedTime, cudastart, cudastop);
-	printf("JPEG encode: (file:%s, line:%d) elapsed time : %f ms\n", __FILE__, __LINE__, elapsedTime);
-#endif
-
-	for (size_t i = 0; i < cameraNum; i++) {
-		// synchronization
-		jpegdatas[i] = new char[dataLengths[i]];
-		memcpy(jpegdatas[i], tempJpegdatas[i], dataLengths[i] * sizeof(unsigned char));
-	}
-
-	end = clock();
-	float waitTime = (double)(end - start) / CLOCKS_PER_SEC * 1000;
-	printf("Compress one frame, cost %f miliseconds ...\n", waitTime);
-
-	for (size_t i = 0; i < cameraNum; i++) {
-		std::string name = cv::format("compresse_%02d.jpg", i);
-		std::cout << "Save to " << name << std::endl;
-		std::ofstream outputFile(name.c_str(), std::ios::out | std::ios::binary);
-		outputFile.write(jpegdatas[i], dataLengths[i]);
-	}
+    cout<< "[ACTION] Camera driver end!" << endl;
+    syslog(LOG_INFO, "[ACTION] Camera driver end!\n");
+    closelog();
 
 	return 0;
 }

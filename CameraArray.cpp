@@ -22,8 +22,10 @@ int CameraArray::init() {
 	this->lastCapturedFrameInd = -1;
 	// init compression coderes
 	coders.resize(camutil.getCameraNum());
+	tempJpegdata.resize(camutil.getCameraNum());
 	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
 		coders[i].init(WIDTH, HEIGHT, 75);
+		tempJpegdata[i] = NULL;
 	}
 	return 0;
 }
@@ -205,6 +207,7 @@ int CameraArray::startRecordJPEG(int fps) {
 	tempJpegdata.resize(camutil.getCameraNum());
 	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
 		tempJpegdata[i] = new unsigned char[1024 * 1024 * 10];
+		//TODO(SHADOWK) : Where is delete...?
 	}
 	// init cuda stream
 	std::vector<cudaStream_t > streams(camutil.getCameraNum());
@@ -257,6 +260,67 @@ int CameraArray::startRecordJPEG(int fps) {
 	return 0;
 }
 
+/**
+@brief capture one jepg frame
+@return bool
+SHADOWK
+*/
+bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<char*>& JpegImgs)
+{
+	if(frameNum <= 0)
+		return false;
+	JpegLens.resize(camutil.getCameraNum());
+	JpegImgs.resize(camutil.getCameraNum());
+	std::vector<cv::Mat> tempImg(camutil.getCameraNum());
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		tempImg[i].create(HEIGHT, WIDTH, CV_8UC1);
+	}
+	// init temp jpeg compression data buffer
+	tempJpegdata.resize(camutil.getCameraNum());
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		if(tempJpegdata[i] != NULL)
+			tempJpegdata[i] = new unsigned char[1024 * 1024 * 10];
+	}
+	// init cuda stream
+	std::vector<cudaStream_t > streams(camutil.getCameraNum());
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		cudaStreamCreate(&streams[i]);
+	}
+	// init gpu bayer image memory
+	std::vector<unsigned char*> bayer_img_ds(camutil.getCameraNum());
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		cudaMalloc(&bayer_img_ds[i], sizeof(unsigned char) * WIDTH * HEIGHT);
+	}
+	camutil.capture(tempImg);
+	// copy data to gpu
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		cudaMemcpyAsync(bayer_img_ds[i], tempImg[i].data,
+			sizeof(unsigned char) * WIDTH * HEIGHT,
+			cudaMemcpyHostToDevice, streams[i]);
+	}
+	// compression
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		// synchronization
+		cudaStreamSynchronize(streams[i]);
+		camera_array_compress_jpeg_(
+			coders[i], bayer_img_ds[i], tempJpegdata[i],
+			&jpegdatalength[0][i], streams[i]);
+	}
+	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+		// synchronization
+		cudaStreamSynchronize(streams[i]);
+
+		//JpegImgs[i] = new char[jpegdatalength[0][i]];
+		JpegLens[i] = jpegdatalength[0][i];
+		JpegImgs[i] = (char *)tempJpegdata[i];
+		//memcpy(JpegImgs[i].get(), tempJpegdata[i], jpegdatalength[0][i]);
+	}
+	// for (size_t i = 0; i < camutil.getCameraNum(); i++) {
+	// 	delete tempJpegdata[i];
+	// }
+	printf("Captured one frame in jepg done.[SHADOWK]");
+	return true;
+}
 
 /**
 @brief preview capture

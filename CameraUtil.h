@@ -14,6 +14,7 @@
 
 // C++ 11 parallel 
 #include <thread>
+#include <memory>
 
 // point grey camera sdk: Spinnaker SDK
 #include "Spinnaker.h"
