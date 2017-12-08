@@ -47,9 +47,9 @@ inline void SleepMs(uint32_t _ms)
 
 inline long GetCurrentTimeMs(void)
 {
-   struct timeval tv;
-   gettimeofday(&tv,NULL);
-   return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 inline string GetCurrentTimeTiff(void)
@@ -80,33 +80,38 @@ inline string GetCurrentTimeTiff(void)
 #endif
 inline bool CreatDirectory(const char *_path)
 {
-	int32_t length = int32_t(strlen(_path));
-	char *path = new char[length + 2];
-	memcpy(path, _path, length);
-	//在路径末尾加/
-	if (path[length - 1] != '\\' && path[length - 1] != '/') {
-		path[length] = '/';
-		path[length + 1] = '\0';
-	}
-	//创建目录
-	for (int32_t i = 0; i <= length; ++i) {
-		if (path[i] == '\\' || (i!=0&&path[i] == '/')) {
-			path[i] = '\0';
-			//如果不存在,创建
-			int32_t error = ACCESS(path, 0);
-			if (error != 0) {
-				error = MKDIR(path);
-				if (error != 0) {
+    int32_t length = int32_t(strlen(_path));
+    char *path = new char[length + 2];
+    memcpy(path, _path, length);
+    //在路径末尾加/
+    if (path[length - 1] != '\\' && path[length - 1] != '/')
+    {
+        path[length] = '/';
+        path[length + 1] = '\0';
+    }
+    //创建目录
+    for (int32_t i = 0; i <= length; ++i)
+    {
+        if (path[i] == '\\' || (i!=0&&path[i] == '/'))
+        {
+            path[i] = '\0';
+            //如果不存在,创建
+            int32_t error = ACCESS(path, 0);
+            if (error != 0)
+            {
+                error = MKDIR(path);
+                if (error != 0)
+                {
                     cout<<"make dir failed @"<<path<<endl;
-					return false;
-				}
-			}
-			//支持linux,将所有\换成/
-			path[i] = '/';
-		}
-	}
-	delete[]path;
-	return true;
+                    return false;
+                }
+            }
+            //支持linux,将所有\换成/
+            path[i] = '/';
+        }
+    }
+    delete[]path;
+    return true;
 }
 
 
@@ -115,29 +120,39 @@ inline bool CreatDirectory(const char *_path)
 class PThreadClass
 {
 public:
-   PThreadClass() {/* empty */}
-   virtual ~PThreadClass() {/* empty */}
+    PThreadClass()
+    {
+        /* empty */
+    }
+    virtual ~PThreadClass()
+    {
+        /* empty */
+    }
 
-   /** Returns true if the thread was successfully started, false if there was an error starting the thread */
-   bool StartInternalThread()
-   {
-      return (pthread_create(&_thread, NULL, InternalThreadEntryFunc, this) == 0);
-   }
+    /** Returns true if the thread was successfully started, false if there was an error starting the thread */
+    bool StartInternalThread()
+    {
+        return (pthread_create(&_thread, NULL, InternalThreadEntryFunc, this) == 0);
+    }
 
-   /** Will not return until the internal thread has exited. */
-   void WaitForInternalThreadToExit()
-   {
-      (void) pthread_join(_thread, NULL);
-   }
+    /** Will not return until the internal thread has exited. */
+    void WaitForInternalThreadToExit()
+    {
+        (void) pthread_join(_thread, NULL);
+    }
 
 protected:
-   /** Implement this method in your subclass with the code you want your thread to run. */
-   virtual int Run(void) = 0;
+    /** Implement this method in your subclass with the code you want your thread to run. */
+    virtual int Run(void) = 0;
 
 private:
-   static void * InternalThreadEntryFunc(void * This) {((PThreadClass *)This)->Run(); return NULL;}
+    static void * InternalThreadEntryFunc(void * This)
+    {
+        ((PThreadClass *)This)->Run();
+        return NULL;
+    }
 
-   pthread_t _thread;
+    pthread_t _thread;
 };
 
 
@@ -149,11 +164,23 @@ private:
 class PMutex
 {
 public:
-    PMutex() { pthread_mutex_init( &mMutex, NULL ); }
-    ~PMutex() { pthread_mutex_destroy( &mMutex ); }
+    PMutex()
+    {
+        pthread_mutex_init( &mMutex, NULL );
+    }
+    ~PMutex()
+    {
+        pthread_mutex_destroy( &mMutex );
+    }
 
-    void Lock() { pthread_mutex_lock( &mMutex ); }
-    void Unlock() { pthread_mutex_unlock( &mMutex ); }
+    void Lock()
+    {
+        pthread_mutex_lock( &mMutex );
+    }
+    void Unlock()
+    {
+        pthread_mutex_unlock( &mMutex );
+    }
 
 private:
     pthread_mutex_t  mMutex;
@@ -165,18 +192,20 @@ template <class T>
 class ThreadMessageDeque
 {
 public:
-    ThreadMessageDeque(){}
-    ~ThreadMessageDeque(){};
+    ThreadMessageDeque() {}
+    ~ThreadMessageDeque() {};
 
     ///消息队列尾部插入
-    void PushBack(T* _unit){
+    void PushBack(T* _unit)
+    {
         mutex_.Lock();
         deque_.push_back(_unit);
         mutex_.Unlock();
     }
 
     ///弹出消息队列首部
-    T* PopFront(void){
+    T* PopFront(void)
+    {
         mutex_.Lock();
         T* tmp=deque_.front();
         deque_.pop_front();
@@ -185,7 +214,8 @@ public:
     }
 
     ///判断消息队列是否空
-    bool Empty(void){
+    bool Empty(void)
+    {
         mutex_.Lock();
         bool tmp=deque_.empty();
         mutex_.Unlock();
@@ -193,13 +223,17 @@ public:
     }
 
     ///从消息队列删除完全相等的消息
-    void Erase(T *_unit){
+    void Erase(T *_unit)
+    {
         mutex_.Lock();
-        for(auto itr=deque_.begin();itr!=deque_.end();){
-            if(*(*itr)==*_unit){
+        for(auto itr=deque_.begin(); itr!=deque_.end();)
+        {
+            if(*(*itr)==*_unit)
+            {
                 itr= deque_.erase(itr);
             }
-            else{
+            else
+            {
                 ++itr;
             }
         }
@@ -207,13 +241,17 @@ public:
     }
 
     ///从消息队列删除请求者的所有消息
-    void Erase(string &_requestor){
+    void Erase(string &_requestor)
+    {
         mutex_.Lock();
-        for(auto itr=deque_.begin();itr!=deque_.end();){
-            if(*(*itr)==_requestor){
+        for(auto itr=deque_.begin(); itr!=deque_.end();)
+        {
+            if(*(*itr)==_requestor)
+            {
                 itr= deque_.erase(itr);
             }
-            else{
+            else
+            {
                 ++itr;
             }
         }

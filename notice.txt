@@ -2,6 +2,7 @@ zhu-ty-bbnc@10.8.5.216
 
 OpenCV Error: Unspecified error (The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script) in cvShowImage
 
+opencv video build option (use ccmake)
 
 https://www.ptgrey.com/KB/10942
 

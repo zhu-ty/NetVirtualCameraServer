@@ -12,19 +12,20 @@
 
 #define MEASURE_KERNEL_TIME
 
-int main(int argc, char* argv[]) {
-	 CameraArray array;
-	// array.init();
-	// array.setWhiteBalance(1.10f, 1.65f);
-	// //array.allocateBuffer(20);
-	// array.allocateBufferJPEG(400);
-	// //array.startRecord(12);
-	// array.startRecordJPEG(40);
-	// //array.saveCapture("E:\\Project\\CameraUtil\\data");
-	// array.saveCaptureJPEGCompressed("./data/");
-	// array.release();
+int main(int argc, char* argv[])
+{
+    CameraArray array;
+    // array.init();
+    // array.setWhiteBalance(1.10f, 1.65f);
+    // //array.allocateBuffer(20);
+    // array.allocateBufferJPEG(400);
+    // //array.startRecord(12);
+    // array.startRecordJPEG(40);
+    // //array.saveCapture("E:\\Project\\CameraUtil\\data");
+    // array.saveCaptureJPEGCompressed("./data/");
+    // array.release();
 
-	cout<< "[ACTION] Camera driver start!" << endl;
+    cout<< "[ACTION] Camera driver start!" << endl;
     syslog(LOG_INFO, "[ACTION] Camera driver start!\n");
 
     ///相机控制线程参数和消息队列
@@ -57,5 +58,5 @@ int main(int argc, char* argv[]) {
     syslog(LOG_INFO, "[ACTION] Camera driver end!\n");
     closelog();
 
-	return 0;
+    return 0;
 }

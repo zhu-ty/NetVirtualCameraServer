@@ -33,17 +33,20 @@ void CameraParametersUnit::Unlock()
 
 CameraControlThread::CameraControlThread(CameraArray *_cameraArray, CameraControlMessageDeque *_cameraControlMessageDeque)
 {
-    if(_cameraArray != NULL && _cameraControlMessageDeque!=NULL){
+    if(_cameraArray != NULL && _cameraControlMessageDeque!=NULL)
+    {
         cameraControlMessageDeque_=_cameraControlMessageDeque;
         cameraArray_ = _cameraArray;
-        if(!StartInternalThread()){
+        if(!StartInternalThread())
+        {
             cout << "[INFO] CameraControlThread failed to start!" << endl;
             syslog(LOG_WARNING, "[Action] CameraControlThread failed to start!\n");
-       }
+        }
     }
-    else{
-         cout << "[INFO] CameraControlThread failed to start!" << endl;
-         syslog(LOG_WARNING, "[Action] CameraControlThread failed to start!\n");
+    else
+    {
+        cout << "[INFO] CameraControlThread failed to start!" << endl;
+        syslog(LOG_WARNING, "[Action] CameraControlThread failed to start!\n");
     }
 }
 
@@ -69,45 +72,54 @@ int CameraControlThread::Run(void)
 
     //std::vector<cv::Mat> matTest(8,cv::Mat(2160,2560,CV_8UC1,cv::Scalar(128)));
 
-    while(cameraControlMessageThis.action_!=CameraControl_Thread_Exit){
+    while(cameraControlMessageThis.action_!=CameraControl_Thread_Exit)
+    {
 //        cout<<"This is CameraControlThread"<<endl<<endl;
-        if(!cameraControlMessageDeque_->Empty()){
+        if(!cameraControlMessageDeque_->Empty())
+        {
             cameraControlMessageTmpPtr=cameraControlMessageDeque_->PopFront();
             cameraControlMessageThis=*cameraControlMessageTmpPtr;
         }
-        if(cameraControlMessageThis.action_==CameraControl_Thread_Exit){
-            if(cameraControlMessageTmpPtr!=NULL){
+        if(cameraControlMessageThis.action_==CameraControl_Thread_Exit)
+        {
+            if(cameraControlMessageTmpPtr!=NULL)
+            {
                 cameraControlMessageTmpPtr->action_=CameraControl_Action_Valid;
             }
             break;
         }
-        else if(cameraControlMessageThis.action_==CameraControl_Thread_Wait){
+        else if(cameraControlMessageThis.action_==CameraControl_Thread_Wait)
+        {
             SleepUs(200);
 
         }
-        switch(cameraControlMessageThis.action_){
+        switch(cameraControlMessageThis.action_)
+        {
 
-            case CameraControl_Open_Camera:{
-                cout << "[Action] CameraControlThread: CameraControl_Open_Camera:" << endl;
-                syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Open_Camera\n");
-                OpenCamera(cameraControlMessageTmpPtr);
-                cameraControlMessageThis.action_=CameraControl_Thread_Wait;
-                break;
-            }
-            case CameraControl_Close_Camera:{
-                cout << "[Action] CameraControlThread: CameraControl_Close_Camera:" << endl;
-                syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Close_Camera\n");
-                CloseCamera(cameraControlMessageTmpPtr);
-                cameraControlMessageThis.action_=CameraControl_Thread_Wait;
-                break;
-            }
-            case CameraControl_Get_Image:{
-                cout << "[Action] CameraControlThread: CameraControl_Get_Image:" << endl;
-                syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Get_Image\n");
-                GetImage(cameraControlMessageTmpPtr);
-                cameraControlMessageThis.action_=CameraControl_Thread_Wait;
-                break;
-            }
+        case CameraControl_Open_Camera:
+        {
+            cout << "[Action] CameraControlThread: CameraControl_Open_Camera:" << endl;
+            syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Open_Camera\n");
+            OpenCamera(cameraControlMessageTmpPtr);
+            cameraControlMessageThis.action_=CameraControl_Thread_Wait;
+            break;
+        }
+        case CameraControl_Close_Camera:
+        {
+            cout << "[Action] CameraControlThread: CameraControl_Close_Camera:" << endl;
+            syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Close_Camera\n");
+            CloseCamera(cameraControlMessageTmpPtr);
+            cameraControlMessageThis.action_=CameraControl_Thread_Wait;
+            break;
+        }
+        case CameraControl_Get_Image:
+        {
+            cout << "[Action] CameraControlThread: CameraControl_Get_Image:" << endl;
+            syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Get_Image\n");
+            GetImage(cameraControlMessageTmpPtr);
+            cameraControlMessageThis.action_=CameraControl_Thread_Wait;
+            break;
+        }
         }
     }
     cout << "[INFO] CameraControlThread ended!" << endl;
@@ -177,14 +189,16 @@ void CameraControlThread::Resize(uint16_t *imgSrc, uint16_t *imgDst, uint32_t sc
     uint32_t heightSrc = imageHeightMax;
 
     for (uint32_t j = 0; j < heightDst; ++j)
-        for (uint32_t i = 0; i < widthDst; ++i){
+        for (uint32_t i = 0; i < widthDst; ++i)
+        {
             float x = i*scale;
             float y = j*scale;
             float _X, _Y;
             int32_t _i, _j;
             float _u, _v;
             float weight0, weight1, weight2, weight3;
-            if(x >= widthSrc-1 || y >= heightSrc-1){
+            if(x >= widthSrc-1 || y >= heightSrc-1)
+            {
                 _X = widthSrc-1.00005;
                 _Y = heightSrc-1.00005;
                 _i = _X;
@@ -196,7 +210,8 @@ void CameraControlThread::Resize(uint16_t *imgSrc, uint16_t *imgDst, uint32_t sc
                 weight2 = _u * (1-_v);
                 weight3 = _u * _v;
             }
-            else{
+            else
+            {
                 _X = x;
                 _Y = y;
                 _i = x;

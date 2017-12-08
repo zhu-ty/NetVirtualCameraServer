@@ -40,7 +40,8 @@ static const int32_t imageHeightMax=2160;
 
 
 ///存储格式枚举定义
-enum Image_Format{
+enum Image_Format
+{
     Image_Format_None=0,
     Image_Format_Bmp=1,
     Image_Format_Raw=2,
@@ -54,23 +55,23 @@ public:
     CameraParametersUnit();
     ~CameraParametersUnit();
 
-	int32_t id_ = 0;										//对应真实的相机编号，1~35
-	int32_t width_ = 2560;									//图像宽度：最大2560
-	int32_t height_ = 2160;									//图像高度：最大2160
-	int32_t exposure_ = 255;								//相机曝光：1~65535
-	int32_t gain_ = 3;										//相机增益：1~255
+    int32_t id_ = 0;										//对应真实的相机编号，1~35
+    int32_t width_ = 2560;									//图像宽度：最大2560
+    int32_t height_ = 2160;									//图像高度：最大2160
+    int32_t exposure_ = 255;								//相机曝光：1~65535
+    int32_t gain_ = 3;										//相机增益：1~255
     int32_t brightness_=32;                                  //相机亮度：1~96 (x0.3125)
-	int32_t contrast_=32;                                   //相机对比度：1~96 (x0.3125)
-	int32_t bitLut_=8;                                      ///已经改为光源强度 考虑到兼容性暂不修改变量名！   ///输出灰度查找位：0~8 (bit[7+x:x])
-	int32_t saveFormat_ = 1;								//保存格式：0:禁用 1:bmp/tiffrush 2:raw 3:bmp+raw
-	int32_t skipNumber_ = 0;								//跳帧数：  0:noskip else: 1/(N+1)
-	int32_t triggerMode_ = 2;								//触发模式：0：两路独立软触发或硬触发 1:两路同时软触发或硬触发，2：内部自由触发
-	std::string savePath_ = "/mnt/dayu/gp/zhu-ty/tmp/";					    //linux下保存路径：~/tmp/		最大长度为256
-	std::string saveName_ = "";							    //保存的文件前缀： test			最大长度为128
-	//std::string othersInfo_= "";                                    ///Tiff保存的操作者、日期、实验目的信息  固定长度为8192
+    int32_t contrast_=32;                                   //相机对比度：1~96 (x0.3125)
+    int32_t bitLut_=8;                                      ///已经改为光源强度 考虑到兼容性暂不修改变量名！   ///输出灰度查找位：0~8 (bit[7+x:x])
+    int32_t saveFormat_ = 1;								//保存格式：0:禁用 1:bmp/tiffrush 2:raw 3:bmp+raw
+    int32_t skipNumber_ = 0;								//跳帧数：  0:noskip else: 1/(N+1)
+    int32_t triggerMode_ = 2;								//触发模式：0：两路独立软触发或硬触发 1:两路同时软触发或硬触发，2：内部自由触发
+    std::string savePath_ = "/mnt/dayu/gp/zhu-ty/tmp/";					    //linux下保存路径：~/tmp/		最大长度为256
+    std::string saveName_ = "";							    //保存的文件前缀： test			最大长度为128
+    //std::string othersInfo_= "";                                    ///Tiff保存的操作者、日期、实验目的信息  固定长度为8192
 
-	void Lock();
-	void Unlock();
+    void Lock();
+    void Unlock();
 
 private:
     PMutex mutex_;
@@ -147,7 +148,7 @@ enum CameraControl_Action
     CameraControl_Get_Image=10,
     CameraControl_Action_Valid=11,
     CameraControl_Action_Invalid=12,
-	CameraControl_Action_Overtime=13,
+    CameraControl_Action_Overtime=13,
 };
 
 
@@ -155,9 +156,17 @@ enum CameraControl_Action
 class CameraControlMessage
 {
 public:
-    CameraControlMessage(){requestor_="";action_=CameraControl_Thread_Wait;}
-    CameraControlMessage(string _requestor,CameraControl_Action _action){requestor_=_requestor;action_=_action;}
-    ~CameraControlMessage(){}
+    CameraControlMessage()
+    {
+        requestor_="";
+        action_=CameraControl_Thread_Wait;
+    }
+    CameraControlMessage(string _requestor,CameraControl_Action _action)
+    {
+        requestor_=_requestor;
+        action_=_action;
+    }
+    ~CameraControlMessage() {}
 
     string requestor_="";                                           ///请求者
     CameraControl_Action action_=CameraControl_Action_Invalid;      ///命令，反馈为Ok或Invalid
@@ -191,8 +200,9 @@ public:
     inline bool operator==(CameraControlMessage &_rightVal) const   ///重载==运算符,完全比较
     {
         if(this->requestor_==_rightVal.requestor_&&this->action_==_rightVal.action_&&       \
-           this->boxIndex_==_rightVal.boxIndex_&&this->cameraIndex_==_rightVal.cameraIndex_){
-           return true;
+                this->boxIndex_==_rightVal.boxIndex_&&this->cameraIndex_==_rightVal.cameraIndex_)
+        {
+            return true;
         }
         return false;
     }
@@ -206,14 +216,18 @@ public:
     CameraControl_Action VerifyAction(CameraControl_Action _endAction,int _overTime)
     {
         long startTime=GetCurrentTimeMs(),nowTime=GetCurrentTimeMs()+1;
-        while(nowTime-startTime<_overTime){
-            if(action_==_endAction){
+        while(nowTime-startTime<_overTime)
+        {
+            if(action_==_endAction)
+            {
                 return CameraControl_Action_Valid;
             }
-            else if(action_==CameraControl_Action_Invalid){
+            else if(action_==CameraControl_Action_Invalid)
+            {
                 return CameraControl_Action_Invalid;
             }
-            else{
+            else
+            {
                 SleepMs(2);
             }
             nowTime=GetCurrentTimeMs();
