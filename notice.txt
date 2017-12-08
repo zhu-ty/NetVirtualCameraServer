@@ -1,0 +1,18 @@
+zhu-ty-bbnc@10.8.5.216
+
+OpenCV Error: Unspecified error (The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script) in cvShowImage
+
+
+https://www.ptgrey.com/KB/10942
+
+For Linux users—Increase the usbfs memory limit to 1000 MB
+To temporarily set the maximum usbfs memory limit, run this command:
+$ sudo modprobe usbcore usbfs_memory_mb=1000
+To permanently set the maximum usbfs memory limit:Open the /etc/default/grub file in any text editor.
+Find and replace:
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+with this:
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash usbcore.usbfs_memory_mb=1000"
+Update grub with these settings:
+$ sudo update-grub
+Reboot and test a USB 3.1 camera.

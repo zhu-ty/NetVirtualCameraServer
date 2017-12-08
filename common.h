@@ -26,6 +26,7 @@
 #include "omp.h"
 #include "math.h"
 #include "limits.h"
+#include "colormod.h"
 #include <syslog.h>
 
 

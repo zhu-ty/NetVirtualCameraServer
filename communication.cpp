@@ -227,7 +227,7 @@ int SocketThread::MakeSocketNonBlocking(int _socketFd)
 
 int SocketThread::Run(void)
 {
-    cout << "[INFO] SocketThread: "<<thisName_<<" started!" << endl;
+    cout <<Colormod::green<< "[INFO] SocketThread: "<<thisName_<<" started!" <<Colormod::def<< endl;
     long lastCheckTime=GetCurrentTimeMs();
     long currentCheckTime=GetCurrentTimeMs()+1;
 
@@ -250,7 +250,7 @@ int SocketThread::Run(void)
             break;
         }
     }
-    cout << "[INFO] SocketThread: "<<thisName_<<" ended!" << endl;
+    cout <<Colormod::red<< "[INFO] SocketThread: "<<thisName_<<" ended!" <<Colormod::def<< endl;
     return 0;
 }
 
@@ -307,7 +307,7 @@ void SocketThread::ParseAndFeedback(void)
                         sum+=writtenByteSize;
                     }
                 }
-                cout<<"[INFO] SocketThread: "<< thisName_<< "send "<<sum<< " bytes,consume: "<<GetCurrentTimeMs()-startTime<<" ms"<<endl;
+                cout<<"[INFO] SocketThread: "<< thisName_<< " send "<<Colormod::blue<<sum<<Colormod::def<< " bytes,consume: "<<GetCurrentTimeMs()-startTime<<" ms"<<endl;
             }
 		}
 		break;
@@ -326,17 +326,17 @@ bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
 
     switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraOpenCameraMaxMs)){
         case CameraControl_Action_Invalid:{
-            cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera invalid!" <<endl;
+            cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera invalid!" << Colormod::def <<endl;
             sendPackage_.status_=Communication_Camera_Open_Camera_Invalid;
             return false;
         }
         case CameraControl_Action_Valid:{
-            cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera valid!" <<endl;
+            cout << Colormod::green << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera valid!" << Colormod::def <<endl;
             sendPackage_.status_=Communication_Camera_Open_Camera_Ok;
             return true;
         }
         case CameraControl_Action_Overtime:{
-            cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera overtime!" <<endl;
+            cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera overtime!" << Colormod::def <<endl;
             cameraControlMessageDeque_->Erase(&cameraControlMessage_);
             sendPackage_.status_=Communication_Camera_Action_Overtime;
             return false;
@@ -356,17 +356,17 @@ bool SocketThread::VerifyCloseCamera(CameraCloseCameraPackage &_data)
 
     switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraCloseCameraMaxMs)){
         case CameraControl_Action_Invalid:{
-            cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Close_Camera invalid!" <<endl;
+            cout << Colormod::red  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Close_Camera invalid!" << Colormod::def <<endl;
             sendPackage_.status_=Communication_Camera_Close_Camera_Invalid;
             return false;
         }
         case CameraControl_Action_Valid:{
-            cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Close_Camera valid!" <<endl;
+            cout << Colormod::green  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Close_Camera valid!" << Colormod::def <<endl;
             sendPackage_.status_=Communication_Camera_Close_Camera_Ok;
             return true;
         }
         case CameraControl_Action_Overtime:{
-            cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Close_Camera overtime!" <<endl;
+            cout << Colormod::red  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Close_Camera overtime!" << Colormod::def <<endl;
             cameraControlMessageDeque_->Erase(&cameraControlMessage_);
             sendPackage_.status_=Communication_Camera_Action_Overtime;
             return false;

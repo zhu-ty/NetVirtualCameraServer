@@ -278,7 +278,7 @@ bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<ch
 	// init temp jpeg compression data buffer
 	tempJpegdata.resize(camutil.getCameraNum());
 	for (size_t i = 0; i < camutil.getCameraNum(); i++) {
-		if(tempJpegdata[i] != NULL)
+		if(tempJpegdata[i] == NULL)
 			tempJpegdata[i] = new unsigned char[1024 * 1024 * 10];
 	}
 	// init cuda stream
@@ -318,7 +318,7 @@ bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<ch
 	// for (size_t i = 0; i < camutil.getCameraNum(); i++) {
 	// 	delete tempJpegdata[i];
 	// }
-	printf("Captured one frame in jepg done.[SHADOWK]");
+	//printf("Captured one frame in jepg done.[SHADOWK]");
 	return true;
 }
 

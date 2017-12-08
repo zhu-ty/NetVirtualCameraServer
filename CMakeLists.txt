@@ -59,6 +59,7 @@ set(MY_HEADER_FILES
     # Communication
     communication.h
     common.h
+    colormod.h
     cameraControl.h
 )
 
