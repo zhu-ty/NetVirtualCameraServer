@@ -169,7 +169,8 @@ int CommunicationThread::Run()
 
         if ((serverFd_ = accept(listenFd, (struct sockaddr*)&remote_addr,&sin_size))>0)
         {
-            SocketThread *newSocketThread=new SocketThread(serverFd_,inet_ntoa(remote_addr.sin_addr),remote_addr.sin_port,communicationMessageDeque_,cameraControlMessageDeque_);
+            SocketThread *newSocketThread=new SocketThread(serverFd_,
+                inet_ntoa(remote_addr.sin_addr),remote_addr.sin_port,communicationMessageDeque_,cameraControlMessageDeque_);
             socketThreadVec_.push_back(newSocketThread);
         }
         ///检测已退出的线程，释放申请的空间
@@ -450,7 +451,7 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
     {
     case CameraControl_Action_Invalid:
     {
-        cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image invalid!" <<endl;
+        cout << Colormod::red  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image invalid!" << Colormod::def <<endl;
         sendPackage_.status_=Communication_Camera_Get_Image_Invalid;
         return false;
     }
@@ -464,7 +465,7 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
     }
     case CameraControl_Action_Overtime:
     {
-        cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image overtime!" <<endl;
+        cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image overtime!" << Colormod::def <<endl;
         cameraControlMessageDeque_->Erase(&cameraControlMessage_);
         sendPackage_.status_=Communication_Camera_Action_Overtime;
         return false;

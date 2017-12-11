@@ -47,3 +47,4 @@ static Modifier green(Colormod::FG_GREEN);
 
 //usage:
 //Color::Modifier red(Color::FG_RED);
+//std::cout<<Colormod::red<<"something"<<Colormod::def<<std::endl;

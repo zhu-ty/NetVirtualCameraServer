@@ -311,6 +311,7 @@ bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<ch
     {
         if(tempJpegdata[i] == NULL)
             tempJpegdata[i] = new unsigned char[WIDTH * HEIGHT * 10];
+            //TODO(SHADOWK) : I didn't free them as well...
     }
     // init cuda stream
     std::vector<cudaStream_t > streams(camutil.getCameraNum());
