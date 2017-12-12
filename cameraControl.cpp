@@ -98,7 +98,7 @@ int CameraControlThread::Run(void)
 
         case CameraControl_Open_Camera:
         {
-            cout << "[Action] CameraControlThread: CameraControl_Open_Camera:" << endl;
+            cout << Colormod::yellow << "[Action]"<< Colormod::def <<" CameraControlThread: CameraControl_Open_Camera:" << endl;
             syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Open_Camera\n");
             OpenCamera(cameraControlMessageTmpPtr);
             cameraControlMessageThis.action_=CameraControl_Thread_Wait;
@@ -106,7 +106,7 @@ int CameraControlThread::Run(void)
         }
         case CameraControl_Close_Camera:
         {
-            cout << "[Action] CameraControlThread: CameraControl_Close_Camera:" << endl;
+            cout << Colormod::yellow << "[Action]"<< Colormod::def <<" CameraControlThread: CameraControl_Close_Camera:" << endl;
             syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Close_Camera\n");
             CloseCamera(cameraControlMessageTmpPtr);
             cameraControlMessageThis.action_=CameraControl_Thread_Wait;
@@ -114,7 +114,7 @@ int CameraControlThread::Run(void)
         }
         case CameraControl_Get_Image:
         {
-            cout << "[Action] CameraControlThread: CameraControl_Get_Image:" << endl;
+            cout << Colormod::yellow << "[Action]"<< Colormod::def <<" CameraControlThread: CameraControl_Get_Image:" << endl;
             syslog(LOG_INFO, "[Action] CameraControlThread: CameraControl_Get_Image\n");
             GetImage(cameraControlMessageTmpPtr);
             cameraControlMessageThis.action_=CameraControl_Thread_Wait;
@@ -169,7 +169,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
 
         if(cameraArray_->CaptureOneFrameJPEG(lens, imgs))
         {
-            cout <<Colormod::yellow<<"[SHDAOWK]"<<Colormod::def<<"[INFO] CameraArray CaptureOneFrameJPEG" << endl;
+            //cout <<Colormod::yellow<<"[SHDAOWK]"<<Colormod::def<<"[INFO] CameraArray CaptureOneFrameJPEG" << endl;
             requestorPtr_->imagelen = lens[requestorPtr_->cameraIndex_];
             memcpy(requestorPtr_->imageData_, (uint8_t *)imgs[requestorPtr_->cameraIndex_], lens[requestorPtr_->cameraIndex_]);
             requestorPtr_->action_=CameraControl_Action_Valid;

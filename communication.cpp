@@ -15,12 +15,12 @@ CommunicationThread::CommunicationThread(CommunicationMessageDeque *_communicati
         cameraControlMessageDeque_=_cameraControlMessageDeque;
         if(!StartInternalThread())
         {
-            cout << "[INFO] CommunicationThread failed to start!" << endl;
+            cout << Colormod::red << "[INFO] CommunicationThread failed to start!" << Colormod::def << endl;
         }
     }
     else
     {
-        cout << "[INFO] CommunicationThread failed to start!" << endl;
+        cout << Colormod::red << "[INFO] CommunicationThread failed to start!" << Colormod::def << endl;
     }
 }
 
@@ -102,18 +102,18 @@ int CommunicationThread::Run()
     struct sockaddr_in remote_addr;
     if ((listenFd = socket(AF_INET,SOCK_STREAM,0)) == -1)
     {
-        cout<<"Create socket failed!"<<endl;
+        cout << Colormod::red << "Create socket failed!" << Colormod::def << endl;
     }
 
     ///设置端口可复用，否则上次程序结束后再重启会导致绑定不成功
     int flag=1;
     if(setsockopt(listenFd,SOL_SOCKET,SO_REUSEADDR,&flag,sizeof(flag))<0)
     {
-        cout<<"[INFO] CommunicationThread: set socket reuse address failed! port: "<<localPort_<<endl;
+        cout << Colormod::red << "[INFO] CommunicationThread: set socket reuse address failed! port: " << localPort_ << Colormod::def << endl;
     }
     if(setsockopt(listenFd,IPPROTO_TCP,TCP_NODELAY,&flag,sizeof(flag))<0)
     {
-        cout<<"[INFO] CommunicationThread: set socket no delay failed! port: "<<localPort_<<endl;
+        cout << Colormod::red << "[INFO] CommunicationThread: set socket no delay failed! port: " << localPort_ << Colormod::def << endl;
     }
 
     ///绑定套接字
@@ -123,13 +123,13 @@ int CommunicationThread::Run()
     bzero(&(my_addr.sin_zero),8);
     if (bind(listenFd, (struct sockaddr*)&my_addr, sizeof(struct sockaddr)) == -1)
     {
-        cout<<"[INFO] CommunicationThread: socket bind error!"<<endl;
+        cout << Colormod::red << "[INFO] CommunicationThread: socket bind error!" << Colormod::def << endl;
     }
 
     ///监听连接
     if (listen(listenFd, maxConnection_) == -1)
     {
-        cout<<"[INFO] CommunicationThread: socket listen error!"<<endl;
+        cout << Colormod::red << "[INFO] CommunicationThread: socket listen error!" << Colormod::def << endl;
     }
 
     ///设置监听socket为非阻塞
@@ -223,7 +223,7 @@ SocketThread::SocketThread(int _newServerFd,string _clientIp,int16_t _clientPort
         sendPackage_.data_=new char[CAMERA_IMAGE_DATA_MAX_SIZE];
         if(!StartInternalThread())
         {
-            cout << "[INFO] SocketThread: "<<thisName_<<"failed to start!" << endl;
+            cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<"failed to start!" << Colormod::def << endl;
         }
     }
 }
@@ -257,7 +257,7 @@ int SocketThread::MakeSocketNonBlocking(int _socketFd)
 
 int SocketThread::Run(void)
 {
-    cout <<Colormod::green<< "[INFO] SocketThread: "<<thisName_<<" started!" <<Colormod::def<< endl;
+    cout << "[INFO] SocketThread: "<<thisName_<<" started!" << endl;
     long lastCheckTime=GetCurrentTimeMs();
     long currentCheckTime=GetCurrentTimeMs()+1;
 
@@ -277,13 +277,13 @@ int SocketThread::Run(void)
         }
         else if((currentCheckTime-lastCheckTime)>heartBeatIntervalMs_)
         {
-            cout << "[INFO] SocketThread: "<<thisName_<<" time out and ended!" << endl;
+            cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" time out and ended!" << Colormod::def << endl;
             close(serverFd_);
             serverFd_=-1;
             break;
         }
     }
-    cout <<Colormod::red<< "[INFO] SocketThread: "<<thisName_<<" ended!" <<Colormod::def<< endl;
+    cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" ended!" << Colormod::def << endl;
     return 0;
 }
 
@@ -349,7 +349,9 @@ void SocketThread::ParseAndFeedback(void)
                         sum+=writtenByteSize;
                     }
                 }
-                cout<<"[INFO] SocketThread: "<< thisName_<< " send "<<Colormod::blue<<sum<<Colormod::def<< " bytes,consume: "<<GetCurrentTimeMs()-startTime<<" ms"<<endl;
+                cout<<"[INFO] SocketThread: "<<
+                thisName_<< " send "<< Colormod::blue << sum << Colormod::def <<
+                " bytes, consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms"<<endl;
             }
         }
         break;
@@ -459,7 +461,8 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
     {
         sendPackage_.dataSize_=sizeof(CameraGetImagePackage) +
                                cameraControlMessage_.imagelen;
-        cout << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image valid!" <<endl;
+        cout << "[INFO] SocketThread: " << thisName_ << " CameraControl_Get_Image valid!" << endl;
+        //cout << "[INFO] CameraIndex: " << Colormod::blue << _data.cameraIndex_ << Colormod::def << endl;
         sendPackage_.status_=Communication_Camera_Get_Image_Ok;
         return true;
     }
