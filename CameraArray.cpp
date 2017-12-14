@@ -359,6 +359,10 @@ bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<ch
     // 	delete tempJpegdata[i];
     // }
     //printf("Captured one frame in jepg done.[SHADOWK]");
+    for (size_t i = 0; i < camutil.getCameraNum(); i++)
+    {
+        cudaStreamDestroy(streams[i]);
+    }
     return true;
 }
 
