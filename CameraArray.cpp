@@ -24,10 +24,12 @@ int CameraArray::init()
     // init compression coderes
     coders.resize(camutil.getCameraNum());
     tempJpegdata.resize(camutil.getCameraNum());
+    bayer_img_ds.resize(camutil.getCameraNum());
     for (size_t i = 0; i < camutil.getCameraNum(); i++)
     {
         coders[i].init(WIDTH, HEIGHT, 75);
         tempJpegdata[i] = NULL;
+        bayer_img_ds[i] = NULL;
     }
     return 0;
 }
@@ -320,10 +322,11 @@ bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<ch
         cudaStreamCreate(&streams[i]);
     }
     // init gpu bayer image memory
-    std::vector<unsigned char*> bayer_img_ds(camutil.getCameraNum());
+    //std::vector<unsigned char*> bayer_img_ds(camutil.getCameraNum());
     for (size_t i = 0; i < camutil.getCameraNum(); i++)
     {
-        cudaMalloc(&bayer_img_ds[i], sizeof(unsigned char) * WIDTH * HEIGHT);
+        if(bayer_img_ds[i] == NULL)
+            cudaMalloc(&bayer_img_ds[i], sizeof(unsigned char) * WIDTH * HEIGHT);
     }
     camutil.capture(tempImg);
     // copy data to gpu

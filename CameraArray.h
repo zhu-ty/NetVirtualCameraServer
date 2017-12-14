@@ -36,6 +36,7 @@ public:
     std::vector<unsigned char*> tempJpegdata;
     std::vector<std::vector<char*>> jpegdatas;
     std::vector<std::vector<size_t>> jpegdatalength;
+    std::vector<unsigned char*> bayer_img_ds;
 private:
     /**
     @brief write recorded video into file
