@@ -148,7 +148,7 @@ bool CameraControlThread::CloseCamera(CameraControlMessage *requestorPtr_)
 {
     if(requestorPtr_!=NULL)
     {
-        cameraArray_->stopCapture();
+        //cameraArray_->stopCapture();
         cameraArray_->release();
 
         requestorPtr_->action_=CameraControl_Action_Valid;
@@ -174,7 +174,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
             int32_t pointer = 0;
             for(int i = 0;i < lens.size(); i++)
             {
-                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)lens[i], sizeof(lens[i]));
+                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&lens[i]), sizeof(lens[i]));
                 pointer += sizeof(lens[i]);
                 memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)imgs[i], lens[i]);
                 pointer += lens[i];
