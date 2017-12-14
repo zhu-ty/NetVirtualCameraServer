@@ -60,3 +60,13 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+/*
+npp::NPPJpegCoder decoder;
+decoder.init(4000, 3000, 75);
+cv::cuda::GpuMat img(3000, 4000, CV_8UC3);
+cv::Mat img_h;
+decoder.decode(reinterpret_cast<unsigned char*>(jpegdatas[3]), dataLengths[3], img);
+img.download(img_h);
+cv::imwrite("decoding.jpg", img_h);
+*/
