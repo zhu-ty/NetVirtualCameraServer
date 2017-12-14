@@ -349,8 +349,8 @@ void SocketThread::ParseAndFeedback(void)
                         sum+=writtenByteSize;
                     }
                 }
-                cout<<"[INFO] SocketThread: "<<
-                thisName_<< " send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
+                cout<<"[INFO] SocketThread: "<<thisName_<< 
+                " send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
                 "consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms, "<<
                 "count: " << Colormod::blue << getimagecount << Colormod::def << " , "<<
                 endl;
