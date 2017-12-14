@@ -95,7 +95,7 @@ public:
     @return bool
     SHADOWK
     */
-    bool CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<char*>& JpegImgs);
+    bool CaptureOneFrameJPEG(std::vector<int32_t>& JpegLens, std::vector<char*>& JpegImgs);
 
     /**
     @brief preview capture

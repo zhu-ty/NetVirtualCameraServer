@@ -181,6 +181,7 @@ public:
     int32_t resizedHeight_=2160;                                    ///反馈的图像缩放后高度
     char *imageData_=NULL;                                          ///反馈的图像起始地址，由通信线程分配
     int32_t imagelen = 0;                                           ///Varied jpeg image lens.
+    int32_t imageamount = 0;                                        ///Camera amount
 
     inline void operator=(CameraControlMessage &_value)             ///重载赋值运算符
     {

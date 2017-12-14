@@ -25,7 +25,8 @@
 /*****************************************以下为与服务器端的通信命令定义******************************************************************************/
 //#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  (8192+512)					///通信命令数据包最大长度
 #define COMMUNICATION_COMMAND_DATA_MAX_SIZE  512			///通信命令数据包最大长度
-#define CAMERA_IMAGE_DATA_MAX_SIZE    (2560*2160*2+1024)	    ///图像数据最大长度
+//#define CAMERA_IMAGE_DATA_MAX_SIZE    (2560*2160*2+1024)	    ///图像数据最大长度
+#define CAMERA_IMAGE_DATA_MAX_SIZE    (2048*2048*4+2048)        ///图像数据最大长度
 
 ///以下为相机控制的命令与状态定义
 enum Communication_Camera_Command
@@ -459,6 +460,7 @@ private:
     string clientIp_="000.000.000.000";
     uint16_t clientPort_=6666;
     uint32_t heartBeatIntervalMs_=5000;
+    uint64_t getimagecount = 0;
 
     ///socket通信发送接送缓冲区
     CommunicationServerReceivePackageTypdef receivePackage_;

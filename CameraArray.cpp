@@ -296,7 +296,7 @@ int CameraArray::startRecordJPEG(int fps)
 @return bool
 SHADOWK
 */
-bool CameraArray::CaptureOneFrameJPEG(std::vector<int>& JpegLens, std::vector<char*>& JpegImgs)
+bool CameraArray::CaptureOneFrameJPEG(std::vector<int32_t>& JpegLens, std::vector<char*>& JpegImgs)
 {
     if(frameNum <= 0)
         return false;

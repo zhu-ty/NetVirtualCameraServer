@@ -350,8 +350,11 @@ void SocketThread::ParseAndFeedback(void)
                     }
                 }
                 cout<<"[INFO] SocketThread: "<<
-                thisName_<< " send "<< Colormod::blue << sum << Colormod::def <<
-                " bytes, consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms"<<endl;
+                thisName_<< " send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
+                "consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms, "<<
+                "count: " << Colormod::blue << getimagecount << Colormod::def << " , "<<
+                endl;
+                getimagecount++;
             }
         }
         break;
@@ -446,19 +449,24 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
     // sendPackage_.dataSize_=sizeof(CameraGetImagePackage) +
     // cameraControlMessage_.imageType_*cameraControlMessage_.resizedWidth_*cameraControlMessage_.resizedHeight_;
 
-    memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
+    //memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
+
     cameraControlMessage_.imageData_=sendPackage_.data_+sizeof(CameraGetImagePackage);
     cameraControlMessageDeque_->PushBack(&cameraControlMessage_);
     switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraGetImageMaxMs))
     {
     case CameraControl_Action_Invalid:
     {
+        _data.cameraAmount_ = 0;
+        memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
         cout << Colormod::red  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image invalid!" << Colormod::def <<endl;
         sendPackage_.status_=Communication_Camera_Get_Image_Invalid;
         return false;
     }
     case CameraControl_Action_Valid:
     {
+        _data.cameraAmount_ = cameraControlMessage_.imageamount;
+        memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
         sendPackage_.dataSize_=sizeof(CameraGetImagePackage) +
                                cameraControlMessage_.imagelen;
         cout << "[INFO] SocketThread: " << thisName_ << " CameraControl_Get_Image valid!" << endl;
@@ -468,12 +476,16 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
     }
     case CameraControl_Action_Overtime:
     {
+        _data.cameraAmount_ = 0;
+        memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
         cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image overtime!" << Colormod::def <<endl;
         cameraControlMessageDeque_->Erase(&cameraControlMessage_);
         sendPackage_.status_=Communication_Camera_Action_Overtime;
         return false;
     }
     }
+    _data.cameraAmount_ = 0;
+    memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
     sendPackage_.status_=Communication_Camera_Action_Invalid;
     return false;
 }

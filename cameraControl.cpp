@@ -164,14 +164,23 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
     if(requestorPtr_!=NULL)
     {
         //printf("[SHADOWK] GetImage inside function2\n");
-        std::vector<int> lens;
+        std::vector<int32_t> lens;
         std::vector<char*> imgs;
 
         if(cameraArray_->CaptureOneFrameJPEG(lens, imgs))
         {
             //cout <<Colormod::yellow<<"[SHDAOWK]"<<Colormod::def<<"[INFO] CameraArray CaptureOneFrameJPEG" << endl;
-            requestorPtr_->imagelen = lens[requestorPtr_->cameraIndex_];
-            memcpy(requestorPtr_->imageData_, (uint8_t *)imgs[requestorPtr_->cameraIndex_], lens[requestorPtr_->cameraIndex_]);
+            requestorPtr_->imageamount = lens.size();
+            int32_t pointer = 0;
+            for(int i = 0;i < lens.size(); i++)
+            {
+                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)lens[i], sizeof(lens[i]));
+                pointer += sizeof(lens[i]);
+                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)imgs[i], lens[i]);
+                pointer += lens[i];
+            }
+            requestorPtr_->imagelen = pointer;
+            //memcpy(requestorPtr_->imageData_, (uint8_t *)imgs[requestorPtr_->cameraIndex_], lens[requestorPtr_->cameraIndex_]);
             requestorPtr_->action_=CameraControl_Action_Valid;
             return true;
         }
