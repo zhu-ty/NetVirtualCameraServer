@@ -133,8 +133,12 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
 {
     if(requestorPtr_!=NULL)
     {
-        cameraArray_->init();
-        cameraArray_->allocateBufferJPEG(10);
+        if(!opened)
+        {
+            cameraArray_->init();
+            cameraArray_->allocateBufferJPEG(10);
+            opened = true;
+        }
         //cameraArray_->allocateBuffer(10);
         //cameraArray_->startCapture(10);
         requestorPtr_->action_=CameraControl_Action_Valid;
@@ -148,9 +152,11 @@ bool CameraControlThread::CloseCamera(CameraControlMessage *requestorPtr_)
 {
     if(requestorPtr_!=NULL)
     {
-        //cameraArray_->stopCapture();
-        cameraArray_->release();
-
+        if(false)
+        {
+            //cameraArray_->stopCapture();
+            cameraArray_->release();
+        }
         requestorPtr_->action_=CameraControl_Action_Valid;
         return true;
     }

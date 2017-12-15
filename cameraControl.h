@@ -294,6 +294,7 @@ private:
     //CameraServerUnit *cameraServerUnit_;
     CameraControlMessageDeque *cameraControlMessageDeque_;
     CameraArray *cameraArray_;
+    bool opened = false;
 
     //std::vector<CameraControlThreadBoxUnit> boxVec_;
 
