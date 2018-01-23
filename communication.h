@@ -26,7 +26,7 @@
 //#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  (8192+512)					///通信命令数据包最大长度
 #define COMMUNICATION_COMMAND_DATA_MAX_SIZE  512			///通信命令数据包最大长度
 //#define CAMERA_IMAGE_DATA_MAX_SIZE    (2560*2160*2+1024)	    ///图像数据最大长度
-#define CAMERA_IMAGE_DATA_MAX_SIZE    (2048*2048*4+2048)        ///图像数据最大长度
+#define CAMERA_IMAGE_DATA_MAX_SIZE    (4096*4096*4+2048)        ///图像数据最大长度
 
 ///以下为相机控制的命令与状态定义
 enum Communication_Camera_Command

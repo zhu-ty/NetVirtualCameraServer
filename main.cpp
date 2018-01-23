@@ -1,20 +1,22 @@
-#include "CameraUtil.h"
-#include "CameraArray.h"
+//#include "CameraUtil.h"
+//#include "CameraArray.h"
 
 #include "common.h"
 #include "cameraControl.h"
 #include "communication.h"
 
-#include "NPPJpegCoder.h"
-#include "NPPJpegCoderKernel.h"
+//#include "NPPJpegCoder.h"
+//#include "NPPJpegCoderKernel.h"
+
+#include "camera_driver/GenCameraDriver.h"
 
 #include <time.h>
 
-#define MEASURE_KERNEL_TIME
+//#define MEASURE_KERNEL_TIME
 
 int main(int argc, char* argv[])
 {
-    CameraArray array;
+    //CameraArray array;
     // array.init();
     // array.setWhiteBalance(1.10f, 1.65f);
     // //array.allocateBuffer(20);
@@ -24,6 +26,8 @@ int main(int argc, char* argv[])
     // //array.saveCapture("E:\\Project\\CameraUtil\\data");
     // array.saveCaptureJPEGCompressed("./data/");
     // array.release();
+
+    cam::GenCamera * cameraPtr = (cam::createCamera(cam::CameraModel::PointGrey_u3)).get();
 
     cout<< "[ACTION] Camera driver start!" << endl;
     syslog(LOG_INFO, "[ACTION] Camera driver start!\n");
@@ -39,7 +43,7 @@ int main(int argc, char* argv[])
     //KeyboardMessageDeque  *keyboardMessageDeque=new KeyboardMessageDeque();
 
     ///注册并启动各线程
-    CameraControlThread cameraControlThread(&array, cameraControlMessageDeque);
+    CameraControlThread cameraControlThread(cameraPtr, cameraControlMessageDeque);
     CommunicationThread communicationThread(communicationMessageDeque,cameraControlMessageDeque);
     //KeyboardControlThread keyboardControlThread(keyboardMessageDeque,cameraControlMessageDeque,communicationMessageDeque);
 

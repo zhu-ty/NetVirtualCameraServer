@@ -40,6 +40,8 @@ static Modifier white(Colormod::FG_WHITE);
 static Modifier blue(Colormod::FG_BLUE);
 static Modifier yellow(Colormod::FG_YELLOW);
 static Modifier green(Colormod::FG_GREEN);
+static Modifier cyan(Colormod::FG_CYAN);
+static Modifier magenta(Colormod::FG_MAGENTA);
 }
 
 #endif

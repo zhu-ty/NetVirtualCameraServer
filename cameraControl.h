@@ -13,7 +13,9 @@
 //#include <opencv2/imgproc.hpp>
 //#include "imageSaver.h"
 
-#include "CameraArray.h"
+//#include "CameraArray.h"
+
+#include "camera_driver/GenCameraDriver.h"
 
 static const int32_t imageWidthMin=1024;
 static const int32_t imageWidthMax=2560;
@@ -283,7 +285,7 @@ typedef ThreadMessageDeque<CameraControlMessage>  CameraControlMessageDeque;
 class CameraControlThread:public PThreadClass
 {
 public:
-    CameraControlThread(CameraArray *_cameraArray, CameraControlMessageDeque *_cameraControlMessageDeque);
+    CameraControlThread(cam::GenCamera *_gencamera, CameraControlMessageDeque *_cameraControlMessageDeque);
     ~CameraControlThread();
 
     virtual int Run(void);
@@ -293,7 +295,9 @@ private:
     ///相机参数和消息队列入口
     //CameraServerUnit *cameraServerUnit_;
     CameraControlMessageDeque *cameraControlMessageDeque_;
-    CameraArray *cameraArray_;
+    cam::GenCamera *gencamera_;
+    std::vector<cam::Imagedata> imgdata;
+    std::vector<cam::GenCamInfo> camInfos;
     bool opened = false;
 
     //std::vector<CameraControlThreadBoxUnit> boxVec_;

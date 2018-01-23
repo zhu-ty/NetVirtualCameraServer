@@ -1,12 +1,12 @@
-# CMake entry point.
+# CMake entry point
 # Note that this CMakeLists.txt in fully independent from the one in the parent directory
 # (since that's the goal of this tutorial !)
 
 # For an introduction to CMake, see
 # http://www.cmake.org/cmake/help/cmake_tutorial.html (at least steps 1 and 2)
 
-cmake_minimum_required (VERSION 2.6)
-set(name "CameraUtil")
+cmake_minimum_required (VERSION 3.10)
+set(name "NetVirtualCameraServer")
 project ( ${name} )
 
 #SET(CMAKE_C_COMPILER gcc)
@@ -39,6 +39,12 @@ if (USE_PTGREY_CAMERA)
 endif()
 include_directories(${PTGREY_SDK_INCLUDE_DIR})
 
+#XIEMA
+set(XIMEA_SDK_INCLUDE_DIR "/opt/XIMEA/include")
+set(XIMEA_SDK_LIBRARY_DEBUG "/usr/lib/libm3api.so")
+set(XIMEA_SDK_LIBRARY_RELEASE "/usr/lib/libm3api.so")
+include_directories(${XIMEA_SDK_INCLUDE_DIR})
+
 #cuda
 find_package(CUDA)
 set(CUDA_NVCC_FLAGS
@@ -49,13 +55,13 @@ set(CUDA_NVCC_FLAGS
 
 set(MY_HEADER_FILES
 	# C++ header file
-	cuda/CameraUtilKernel.h
-	cuda/NPPJpegCoderKernel.h
-	CameraUtil.h
-	CameraArray.h
-	NPPJpegCoder.h
-	helper_cuda.h
-	helper_string.h
+	#cuda/CameraUtilKernel.h
+	#cuda/NPPJpegCoderKernel.h
+	#CameraUtil.h
+	#CameraArray.h
+	#NPPJpegCoder.h
+	#helper_cuda.h
+	#helper_string.h
     # Communication
     communication.h
     common.h
@@ -65,42 +71,65 @@ set(MY_HEADER_FILES
 
 set(MY_SOURCE_FILES 
 	# C++ source file
-	CameraUtil.cpp
-	CameraArray.cpp
+	#CameraUtil.cpp
+	#CameraArray.cpp
 	main.cpp
-	NPPJpegCoder.cpp
+	#NPPJpegCoder.cpp
     # communication
     communication.cpp
     cameraControl.cpp
 	# cuda source file
-	cuda/CameraUtilKernel.cu
-	cuda/NPPJpegCoderKernel.cu
+	#cuda/CameraUtilKernel.cu
+	#cuda/NPPJpegCoderKernel.cu
+)
+
+set(CAMERA_DRIVER_DIR ${PROJECT_SOURCE_DIR}/camera_driver)
+set(CAMERA_DRIVER_HEADER_FILER
+    ${CAMERA_DRIVER_DIR}/XIMEA/XIMEACamera.h
+    ${CAMERA_DRIVER_DIR}/PointGrey/PointGreyCamera.h
+    ${CAMERA_DRIVER_DIR}/GenCameraDriver.h
+    ${CAMERA_DRIVER_DIR}/RealCameraDriver.h
+    ${CAMERA_DRIVER_DIR}/NPPJpegCoder.h
+)
+set(CAMERA_DRIVER_SOURCE_FILER
+    ${CAMERA_DRIVER_DIR}/XIMEA/XIMEACamera.cpp
+    ${CAMERA_DRIVER_DIR}/PointGrey/PointGreyCamera.cpp
+    ${CAMERA_DRIVER_DIR}/GenCameraDriver.cpp
+    ${CAMERA_DRIVER_DIR}/GenCameraDriverImpl.cpp
+    ${CAMERA_DRIVER_DIR}/RealCameraDriver.cpp
+    ${CAMERA_DRIVER_DIR}/NPPJpegCoder.cpp
 )
 
 include_directories(
 	${PROJECT_SOURCE_DIR}	
-	${PROJECT_SOURCE_DIR}/cuda	
+	${CAMERA_DRIVER_DIR}
+    ${CAMERA_DRIVER_DIR}/cuda  
+    ${CAMERA_DRIVER_DIR}/XIMEA 
+    ${CAMERA_DRIVER_DIR}/PointGrey 
 )
 
 cuda_add_executable(${name}
 	${MY_HEADER_FILES}
 	${MY_SOURCE_FILES}
+    ${CAMERA_DRIVER_HEADER_FILER}
+    ${CAMERA_DRIVER_SOURCE_FILER}
 )
 
-if (USE_LIB)
-	target_link_libraries(${name}
-		${OpenCV_LIBS}
-		${CUDA_npp_LIBRARY}
-		${CUDA_nppc_LIBRARY}
-		debug ${PTGREY_SDK_LIBRARY_DEBUG}
-		optimized ${PTGREY_SDK_LIBRARY_RELEASE}
-	)
-else()
-	target_link_libraries(${name}
-		${OpenCV_LIBS}
-		${CUDA_npp_LIBRARY}
-		${CUDA_nppc_LIBRARY}
-		debug ${PTGREY_SDK_LIBRARY_DEBUG}
-		optimized ${PTGREY_SDK_LIBRARY_RELEASE}
-	)
-endif(USE_LIB)
+target_link_libraries(${name}
+	${OpenCV_LIBS}
+	${CUDA_LIBRARY}  
+    ${CUDA_npp_LIBRARY} 
+    ${CUDA_nppc_LIBRARY} 
+    ${CUDA_nppicc_LIBRARY}
+    ${CUDA_nppicom_LIBRARY}
+    ${CUDA_nppidei_LIBRARY}
+    ${CUDA_nppif_LIBRARY}
+    ${CUDA_nppig_LIBRARY}
+    ${CUDA_nppim_LIBRARY}
+    ${CUDA_nppist_LIBRARY}
+    ${CUDA_nppisu_LIBRARY}
+    ${CUDA_nppitc_LIBRARY}
+    ${CUDA_npps_LIBRARY} 
+    debug ${PTGREY_SDK_LIBRARY_DEBUG} ${XIMEA_SDK_LIBRARY_DEBUG}
+	optimized ${PTGREY_SDK_LIBRARY_RELEASE} ${XIMEA_SDK_LIBRARY_RELEASE}
+)
