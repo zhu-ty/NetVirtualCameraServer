@@ -1,6 +1,6 @@
 # NetVirtualCameraServer
 
-##introduction
+## introduction
 Generic Industry Camera Driver Network ServerVersion, support capturing (software synchronization), JPEG compression, Saving to video
 
 should be used with zhu-ty/NetVirtualCamera
