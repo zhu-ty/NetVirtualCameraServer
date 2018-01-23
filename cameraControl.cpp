@@ -31,9 +31,9 @@ void CameraParametersUnit::Unlock()
 }
 
 
-CameraControlThread::CameraControlThread(cam::GenCamera *_gencamera, CameraControlMessageDeque *_cameraControlMessageDeque)
+CameraControlThread::CameraControlThread(std::shared_ptr<cam::GenCamera> _gencamera, CameraControlMessageDeque *_cameraControlMessageDeque)
 {
-    if(_gencamera != NULL && _cameraControlMessageDeque!=NULL)
+    if(_gencamera && _cameraControlMessageDeque!=NULL)
     {
         cameraControlMessageDeque_=_cameraControlMessageDeque;
         gencamera_ = _gencamera;
@@ -136,6 +136,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         if(!opened)
         {
             gencamera_->init();
+            gencamera_->startCapture();
             gencamera_->setFPS(-1, 20);
             gencamera_->setAutoExposure(-1, cam::Status::on);
             gencamera_->setAutoExposureLevel(-1, 25);
@@ -187,8 +188,8 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
         int32_t pointer = 0;
         for(int i = 0;i < imgdata.size(); i++)
         {
-            memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata[i].length)), sizeof(imgdata[i].length));
-            pointer += sizeof(imgdata[i].length);
+            memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata[i].length)), sizeof(int));
+            pointer += sizeof(int);
             memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(imgdata[i].data), imgdata[i].length);
             pointer += imgdata[i].length;
         }

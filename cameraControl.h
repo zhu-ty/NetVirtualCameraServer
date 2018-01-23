@@ -285,7 +285,7 @@ typedef ThreadMessageDeque<CameraControlMessage>  CameraControlMessageDeque;
 class CameraControlThread:public PThreadClass
 {
 public:
-    CameraControlThread(cam::GenCamera *_gencamera, CameraControlMessageDeque *_cameraControlMessageDeque);
+    CameraControlThread(std::shared_ptr<cam::GenCamera> _gencamera, CameraControlMessageDeque *_cameraControlMessageDeque);
     ~CameraControlThread();
 
     virtual int Run(void);
@@ -295,7 +295,7 @@ private:
     ///相机参数和消息队列入口
     //CameraServerUnit *cameraServerUnit_;
     CameraControlMessageDeque *cameraControlMessageDeque_;
-    cam::GenCamera *gencamera_;
+    std::shared_ptr<cam::GenCamera> gencamera_;
     std::vector<cam::Imagedata> imgdata;
     std::vector<cam::GenCamInfo> camInfos;
     bool opened = false;
