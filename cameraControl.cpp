@@ -183,7 +183,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
     if(requestorPtr_!=NULL)
     {
         gencamera_->captureFrame(imgdata);
-        cout <<Colormod::magenta<<"[SHDAOWK]"<<Colormod::def<<"[INFO] GenCamera captureFrame" << endl;
+        //cout <<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] GenCamera captureFrame" << endl;
         requestorPtr_->imageamount = imgdata.size();
         int32_t pointer = 0;
         for(int i = 0;i < imgdata.size(); i++)
