@@ -30,7 +30,10 @@ public:
     friend std::ostream&
     operator<<(std::ostream& os, const Modifier& mod)
     {
-        return os << "\033[" << mod.code << "m";
+        if(mod.code != FG_DEFAULT && mod.code != BG_DEFAULT)
+            return os << "\033[" << mod.code << ";1m";
+        else
+            return os << "\033[" << mod.code << "m";
     }
 };
 
