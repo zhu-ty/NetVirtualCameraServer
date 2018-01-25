@@ -309,9 +309,24 @@ void SocketThread::ParseAndFeedback(void)
         dataTmp.PrintInfo("[INFO] SocketThread: "+thisName_);
         VerifyOpenCamera(dataTmp);
         int writtenByteSize=-1;
-        if((writtenByteSize=write(serverFd_,&sendPackage_,sizeof(sendPackage_.status_)))>0)
+        if((writtenByteSize=write(serverFd_,&sendPackage_,sizeof(sendPackage_.status_)+sizeof(sendPackage_.dataSize_)))>0)
         {
-            ///记录socket通信状态
+            if(sendPackage_.status_==Communication_Camera_Open_Camera_Ok)
+            {
+                int sum=0;
+                long startTime=GetCurrentTimeMs();
+                while(sum<sendPackage_.dataSize_)
+                {
+                    if((writtenByteSize=write(serverFd_,sendPackage_.data_+sum,sendPackage_.dataSize_-sum))>0)
+                    {
+                        sum+=writtenByteSize;
+                    }
+                }
+                cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
+                "Opencamera reply send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
+                "consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms, "<<
+                endl;
+            }
         }
         break;
     }
@@ -369,24 +384,36 @@ bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
     cameraControlMessage_.boxIndex_=_data.boxIndex_;
     cameraControlMessage_.cameraIndex_=_data.cameraIndex_;
     cameraControlMessage_.openCameraOperationIndex_=_data.operationIndex_;
+    std::string tmp_str(_data.genfunc_c);
+    cameraControlMessage_.genfunc_ = tmp_str;
+    cameraControlMessage_.gendata_ = _data.gendata_c;
+    
+    sendPackage_.dataSize_=sizeof(CameraOpenCameraPackage);
+
     cameraControlMessageDeque_->PushBack(&cameraControlMessage_);
 
-    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraOpenCameraMaxMs))
+    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid, verifyCameraOpenCameraMaxMs))
     {
     case CameraControl_Action_Invalid:
     {
+        _data.gendata_c = cameraControlMessage_.gendata_;
+        memcpy(sendPackage_.data_,&_data,sizeof(CameraOpenCameraPackage));
         cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera invalid!" << Colormod::def <<endl;
         sendPackage_.status_=Communication_Camera_Open_Camera_Invalid;
         return false;
     }
     case CameraControl_Action_Valid:
     {
+        _data.gendata_c = cameraControlMessage_.gendata_;
+        memcpy(sendPackage_.data_,&_data,sizeof(CameraOpenCameraPackage));
         cout << Colormod::green << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera valid!" << Colormod::def <<endl;
         sendPackage_.status_=Communication_Camera_Open_Camera_Ok;
         return true;
     }
     case CameraControl_Action_Overtime:
     {
+        _data.gendata_c = cameraControlMessage_.gendata_;
+        memcpy(sendPackage_.data_,&_data,sizeof(CameraOpenCameraPackage));
         cout << Colormod::red << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera overtime!" << Colormod::def <<endl;
         cameraControlMessageDeque_->Erase(&cameraControlMessage_);
         sendPackage_.status_=Communication_Camera_Action_Overtime;

@@ -24,9 +24,11 @@
 
 /*****************************************以下为与服务器端的通信命令定义******************************************************************************/
 //#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  (8192+512)					///通信命令数据包最大长度
-#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  512			///通信命令数据包最大长度
+#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  4096*10			///通信命令数据包最大长度
 //#define CAMERA_IMAGE_DATA_MAX_SIZE    (2560*2160*2+1024)	    ///图像数据最大长度
 #define CAMERA_IMAGE_DATA_MAX_SIZE    (4096*4096*4+2048)        ///图像数据最大长度
+
+#define OPEN_CAMERA_LESS_OUTPUT
 
 ///以下为相机控制的命令与状态定义
 enum Communication_Camera_Command
@@ -128,12 +130,15 @@ public:
     int32_t triggerMode_ = 1;										///7:触发模式：0：两路独立软触发或硬触发 1:两路同时软触发或硬触发，2：内部自由触发，一直采集图像
     char savePath_[256] = "/home/tmp";								///8:linux下保存路径：/home/tmp/		固定长度为256
     char saveName_[128] = "";										///8:保存的文件名： test				固定长度为128
-    //char othersInfo_[8192] = "";                                    ///Tiff保存的操作者、日期、实验目的信息  固定长度为8192
+    //char othersInfo_[8192] = "";                                  ///Tiff保存的操作者、日期、实验目的信息  固定长度为8192
+    char genfunc_c[256];                                            ///待调用函数
+    GenCameraControlData gendata_c;                                 ///数据
 
     void PrintInfo(std::string _str)
     {
         std::cout << _str << endl;
         std::cout << "Command: " << "Communication_Camera_Open_Camera" << endl;
+#ifndef OPEN_CAMERA_LESS_OUTPUT
         std::cout << "         " << "operationIndex: "<<operationIndex_<<endl;
         std::cout << "         " << "boxAmount: " << boxAmount_ << endl;
         std::cout << "         " << "boxIndex: " << boxIndex_ << endl;
@@ -152,6 +157,8 @@ public:
         std::cout << "         " << "triggerMode: " << triggerMode_ << endl;
         std::cout << "         " << "savePath: " << savePath_ << endl;
         std::cout << "         " << "saveName: " << saveName_ << endl;
+#endif
+        std::cout << "         " << "function: " << genfunc_c << endl;
     }
 };
 

@@ -17,10 +17,14 @@
 
 #include "camera_driver/GenCameraDriver.h"
 
+#define MAX_CAMERA_NUM 16
+#define MAX_PARAM_NUM 10
+#define MAX_PATH_LEN 512
+#define MAX_SN_LEN MAX_PATH_LEN
 static const int32_t imageWidthMin=1024;
-static const int32_t imageWidthMax=2560;
+static const int32_t imageWidthMax=4096*4;
 static const int32_t imageHeightMin=768;
-static const int32_t imageHeightMax=2160;
+static const int32_t imageHeightMax=3000*2;
 //static const int32_t exposureMin=1;
 //static const int32_t exposureMax=1000000;
 //static const int32_t gainMin=1;
@@ -39,6 +43,53 @@ static const int32_t imageHeightMax=2160;
 //static const int32_t cameraTemperatureMax=65;
 //static const int32_t cameraCoolingTarget=10;
 //static const int32_t cameraCoolingErrorMax=2;
+
+struct GenCamInfoStruct 
+{
+    char sn[MAX_SN_LEN];
+    int width;
+    int height;
+    float fps;
+    int autoExposure;
+    int bayerPattern;	
+    float redGain;
+    float greenGain;
+    float blueGain;
+    bool isWBRaw;
+};
+
+
+union GenCameraControlData
+{
+    struct
+    {
+        int return_val;
+    } void_func;
+    struct
+    {
+        int return_val;
+        GenCamInfoStruct camInfos[MAX_CAMERA_NUM];
+    } caminfo_func;
+    struct
+    {
+        int return_val;
+        bool param_bool[MAX_PARAM_NUM];
+        int param_enum[MAX_PARAM_NUM];
+        int param_int[MAX_PARAM_NUM];
+        float param_float[MAX_PARAM_NUM];
+    } param_func;
+    struct
+    {
+        int return_val;
+        char str[MAX_PATH_LEN];
+    } str_func;
+
+    char data[];
+
+};
+
+
+
 
 
 ///存储格式枚举定义
@@ -184,6 +235,10 @@ public:
     char *imageData_=NULL;                                          ///反馈的图像起始地址，由通信线程分配
     int32_t imagelen = 0;                                           ///Varied jpeg image lens.
     int32_t imageamount = 0;                                        ///Camera amount
+
+    string genfunc_="";
+    GenCameraControlData gendata_;
+
 
     inline void operator=(CameraControlMessage &_value)             ///重载赋值运算符
     {
