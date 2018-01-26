@@ -138,6 +138,8 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         {
             requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->init();
+            //TODO: now only Jpeg
+            gencamera_->setCamBufferType(cam::GenCamBufferType::JPEG);
         }
         else if(gfun.compare("startCapture") == 0)
         {
@@ -171,8 +173,10 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
                     requestorPtr_->action_=CameraControl_Action_Invalid;
                     return false;
                 }
-                memcpy(requestorPtr_->gendata_.caminfo_func.camInfos[i].sn,camInfos[i].sn.c_str(),camInfos[i].sn.size());
+                memcpy(requestorPtr_->gendata_.caminfo_func.camInfos[i].sn, camInfos[i].sn.c_str(),camInfos[i].sn.size());
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].sn[camInfos[i].sn.size()] = 0;//make sure ends with '\0'
+                cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def << "Caminfo_sn "<< i << ":" 
+                << requestorPtr_->gendata_.caminfo_func.camInfos[i].sn << endl;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].width = camInfos[i].width;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].height = camInfos[i].height;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].fps = camInfos[i].fps;
@@ -269,7 +273,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
                 requestorPtr_->gendata_.param_func.param_int[0]
             );
         }
-        else if(gfun.compare("stopCaptureThreads") == 0 && opened == false)
+        else if(gfun.compare("startCaptureThreads") == 0 && opened == false)
         {
             requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->startCaptureThreads();
@@ -398,6 +402,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
         int32_t pointer = 0;
         for(int i = 0;i < imgdata.size(); i++)
         {
+            cout << Colormod::magenta<<"[SHADOWK] imgdata_size"<<Colormod::def<<imgdata[i].length <<endl;
             memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata[i].length)), sizeof(int));
             pointer += sizeof(int);
             memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(imgdata[i].data), imgdata[i].length);
