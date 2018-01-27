@@ -17,9 +17,9 @@
 
 #include "camera_driver/GenCameraDriver.h"
 
-#define MAX_CAMERA_NUM 16
+#define MAX_CAMERA_NUM 8
 #define MAX_PARAM_NUM 10
-#define MAX_PATH_LEN 512
+#define MAX_PATH_LEN 256
 #define MAX_SN_LEN MAX_PATH_LEN
 static const int32_t imageWidthMin=1024;
 static const int32_t imageWidthMax=4096*4;
@@ -59,7 +59,7 @@ struct GenCamInfoStruct
 };
 
 
-union GenCameraControlData
+struct GenCameraControlData
 {
     struct
     {
@@ -83,9 +83,6 @@ union GenCameraControlData
         int return_val;
         char str[MAX_PATH_LEN];
     } str_func;
-
-    char data[];
-
 };
 
 

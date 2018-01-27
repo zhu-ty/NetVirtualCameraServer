@@ -310,23 +310,28 @@ void SocketThread::ParseAndFeedback(void)
         VerifyOpenCamera(dataTmp);
         int writtenByteSize=-1;
         if((writtenByteSize=write(serverFd_,&sendPackage_,sizeof(sendPackage_.status_)+sizeof(sendPackage_.dataSize_)))>0)
+        //if((writtenByteSize=write(serverFd_,&sendPackage_,&sendPackage_.dataSize_ - &sendPackage_.status_ + 4)))>0)
         {
+            int sum=0;
+            long startTime=GetCurrentTimeMs();
             if(sendPackage_.status_==Communication_Camera_Open_Camera_Ok)
             {
-                int sum=0;
-                long startTime=GetCurrentTimeMs();
                 while(sum<sendPackage_.dataSize_)
                 {
+                    //cout << Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"written byte size: " << sum << endl;
+
                     if((writtenByteSize=write(serverFd_,sendPackage_.data_+sum,sendPackage_.dataSize_-sum))>0)
                     {
                         sum+=writtenByteSize;
                     }
                 }
-                cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
-                "Opencamera reply send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
-                "consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms, "<<
-                endl;
+                //send something meaningless
+                write(serverFd_,"1234567890000000000000000000000000000000000000000000000000000000000000000000000",100);
             }
+            cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
+                "Opencamera reply send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
+                "consume: " << Colormod::blue << GetCurrentTimeMs()-startTime << Colormod::def << " ms. "<<
+                endl;
         }
         break;
     }

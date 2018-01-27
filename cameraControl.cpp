@@ -138,6 +138,8 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         {
             requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->init();
+            //cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
+            //<< "init return :"<< requestorPtr_->gendata_.void_func.return_val << endl;
             //TODO: now only Jpeg
             gencamera_->setCamBufferType(cam::GenCamBufferType::JPEG);
         }
@@ -174,9 +176,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
                     return false;
                 }
                 memcpy(requestorPtr_->gendata_.caminfo_func.camInfos[i].sn, camInfos[i].sn.c_str(),camInfos[i].sn.size());
-                requestorPtr_->gendata_.caminfo_func.camInfos[i].sn[camInfos[i].sn.size()] = 0;//make sure ends with '\0'
-                cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def << "Caminfo_sn "<< i << ":" 
-                << requestorPtr_->gendata_.caminfo_func.camInfos[i].sn << endl;
+                
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].width = camInfos[i].width;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].height = camInfos[i].height;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].fps = camInfos[i].fps;
@@ -186,11 +186,21 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].greenGain = camInfos[i].greenGain;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].blueGain = camInfos[i].blueGain;
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].isWBRaw = camInfos[i].isWBRaw;
+
+                requestorPtr_->gendata_.caminfo_func.camInfos[i].sn[camInfos[i].sn.size()] = 0;//make sure ends with '\0'
+                cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
+                << "camInfos[i].sn.size() :" << camInfos[i].sn.size()
+                << "Caminfo_sn "<< i << ":" 
+                << requestorPtr_->gendata_.caminfo_func.camInfos[i].sn << " Width = " << requestorPtr_->gendata_.caminfo_func.camInfos[i].width << endl;
             }
 
         }
         else if(gfun.compare("setFPS") == 0)
         {
+            cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
+            << "Set fps :"<< requestorPtr_->gendata_.param_func.param_int[0] << " " <<  
+                requestorPtr_->gendata_.param_func.param_float[0] << " " <<
+                requestorPtr_->gendata_.param_func.param_float[1] << endl;
             requestorPtr_->gendata_.param_func.return_val = 
             gencamera_->setFPS(
                 requestorPtr_->gendata_.param_func.param_int[0],

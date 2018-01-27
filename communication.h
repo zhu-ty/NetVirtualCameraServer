@@ -24,7 +24,7 @@
 
 /*****************************************以下为与服务器端的通信命令定义******************************************************************************/
 //#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  (8192+512)					///通信命令数据包最大长度
-#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  4096*10			///通信命令数据包最大长度
+#define COMMUNICATION_COMMAND_DATA_MAX_SIZE  4096*8			///通信命令数据包最大长度
 //#define CAMERA_IMAGE_DATA_MAX_SIZE    (2560*2160*2+1024)	    ///图像数据最大长度
 #define CAMERA_IMAGE_DATA_MAX_SIZE    (4096*4096*4+2048)        ///图像数据最大长度
 
