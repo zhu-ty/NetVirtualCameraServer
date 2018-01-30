@@ -272,8 +272,11 @@ int SocketThread::Run(void)
         int readByteSize=-1;
         if((readByteSize=read(serverFd_,&receivePackage_,sizeof(receivePackage_)))>0)
         {
-            ParseAndFeedback();
-            lastCheckTime=GetCurrentTimeMs();
+            if(readByteSize >= 4)
+            {
+                ParseAndFeedback();
+                lastCheckTime=GetCurrentTimeMs();
+            }
         }
         else if((currentCheckTime-lastCheckTime)>heartBeatIntervalMs_)
         {
@@ -326,7 +329,7 @@ void SocketThread::ParseAndFeedback(void)
                     }
                 }
                 //send something meaningless
-                write(serverFd_,"1234567890000000000000000000000000000000000000000000000000000000000000000000000",100);
+                //write(serverFd_,"1234567890000000000000000000000000000000000000000000000000000000000000000000000",100);
             }
             cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
                 "Opencamera reply send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
