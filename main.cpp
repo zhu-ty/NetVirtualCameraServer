@@ -27,7 +27,9 @@ int main(int argc, char* argv[])
     // array.saveCaptureJPEGCompressed("./data/");
     // array.release();
 
-    std::shared_ptr<cam::GenCamera> cameraPtr = cam::createCamera(cam::CameraModel::PointGrey_u3);
+    //std::shared_ptr<cam::GenCamera> cameraPtr = cam::createCamera(cam::CameraModel::PointGrey_u3);
+
+    std::shared_ptr<cam::GenCamera> cameraPtr = cam::createCamera(cam::CameraModel::XIMEA_xiC);
 
     cout<< "[ACTION] Camera driver start!" << endl;
     syslog(LOG_INFO, "[ACTION] Camera driver start!\n");
