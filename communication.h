@@ -466,7 +466,7 @@ private:
     string thisName_="";
     string clientIp_="000.000.000.000";
     uint16_t clientPort_=6666;
-    uint32_t heartBeatIntervalMs_=150000;
+    uint32_t heartBeatIntervalMs_=10000;
     uint64_t getimagecount = 0;
 
     ///socket通信发送接送缓冲区
