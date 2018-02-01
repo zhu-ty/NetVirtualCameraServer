@@ -174,7 +174,7 @@ private:
 static const int verifyCameraThreadExitMaxMs=500;
 static const int verifyCameraOpenBoxMaxMs=5000;
 static const int verifyCameraCloseBoxMaxMs=5000;
-static const int verifyCameraOpenCameraMaxMs=5000;
+static const int verifyCameraOpenCameraMaxMs=10000;
 static const int verifyCameraCloseCameraMaxMs=5000;
 static const int verifyCameraTriggerContinousMaxMs=5000;
 static const int verifyCameraTriggerSingleMaxMs=5000;
