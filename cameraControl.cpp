@@ -150,7 +150,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("getCamInfos") == 0)
         {
-            requestorPtr_->gendata_.caminfo_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->getCamInfos(
                 camInfos
             );
@@ -201,7 +201,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
             << "Set fps :"<< requestorPtr_->gendata_.param_func.param_int[0] << " " <<  
                 requestorPtr_->gendata_.param_func.param_float[0] << " " <<
                 requestorPtr_->gendata_.param_func.param_float[1] << endl;
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setFPS(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 requestorPtr_->gendata_.param_func.param_float[0],
@@ -210,14 +210,14 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setAutoWhiteBalance") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setAutoWhiteBalance(
                 requestorPtr_->gendata_.param_func.param_int[0]
             );
         }
         else if(gfun.compare("setWhiteBalance") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setWhiteBalance(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 requestorPtr_->gendata_.param_func.param_float[0],
@@ -227,7 +227,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setAutoExposure") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setAutoExposure(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0]
@@ -235,7 +235,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setAutoExposureLevel") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setAutoExposureLevel(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 requestorPtr_->gendata_.param_func.param_float[0]
@@ -243,7 +243,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setAutoExposureCompensation") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setAutoExposureCompensation(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0],
@@ -252,7 +252,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setExposure") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setExposure(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 requestorPtr_->gendata_.param_func.param_int[1]
@@ -261,7 +261,7 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         else if(gfun.compare("getBayerPattern") == 0)
         {
             cam::GenCamBayerPattern tmp;
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->getBayerPattern(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 tmp
@@ -270,14 +270,14 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("makeSetEffective") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->makeSetEffective(
                 requestorPtr_->gendata_.param_func.param_int[0]
             );
         }
         else if(gfun.compare("setCaptureMode") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setCaptureMode(
                 (cam::GenCamCaptureMode)requestorPtr_->gendata_.param_func.param_enum[0],
                 requestorPtr_->gendata_.param_func.param_int[0]
@@ -291,21 +291,21 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setVerbose") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setVerbose(
                 requestorPtr_->gendata_.param_func.param_bool[0]
             );
         }
         else if(gfun.compare("setCamBufferType") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setCamBufferType(
                 (cam::GenCamBufferType)requestorPtr_->gendata_.param_func.param_enum[0]
             );
         }
         else if(gfun.compare("setJPEGQuality") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setJPEGQuality(
                 requestorPtr_->gendata_.param_func.param_int[0],
                 requestorPtr_->gendata_.param_func.param_float[0]
@@ -313,21 +313,21 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         }
         else if(gfun.compare("setCapturePurpose") == 0)
         {
-            requestorPtr_->gendata_.param_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->setCapturePurpose(
                 (cam::GenCamCapturePurpose)requestorPtr_->gendata_.param_func.param_enum[0]
             );
         }
         else if(gfun.compare("saveImages") == 0)
         {
-            requestorPtr_->gendata_.str_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->saveImages(
                 requestorPtr_->gendata_.str_func.str
             );
         }
         else if(gfun.compare("saveVideos") == 0)
         {
-            requestorPtr_->gendata_.str_func.return_val = 
+            requestorPtr_->gendata_.void_func.return_val = 
             gencamera_->saveVideos(
                 requestorPtr_->gendata_.str_func.str
             );
