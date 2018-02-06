@@ -328,8 +328,6 @@ void SocketThread::ParseAndFeedback(void)
                         sum+=writtenByteSize;
                     }
                 }
-                //send something meaningless
-                //write(serverFd_,"1234567890000000000000000000000000000000000000000000000000000000000000000000000",100);
             }
             cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
                 "Opencamera reply send "<< Colormod::blue << sum << Colormod::def <<" bytes, " << 
@@ -414,7 +412,7 @@ bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
     {
         _data.gendata_c = cameraControlMessage_.gendata_;
         memcpy(sendPackage_.data_,&_data,sizeof(CameraOpenCameraPackage));
-        cout << Colormod::green << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera valid!" << Colormod::def <<endl;
+        cout << Colormod::green << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Open_Camera("<<cameraControlMessage_.genfunc_ <<") valid!" << Colormod::def <<endl;
         sendPackage_.status_=Communication_Camera_Open_Camera_Ok;
         return true;
     }

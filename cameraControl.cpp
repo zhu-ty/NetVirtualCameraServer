@@ -6,6 +6,7 @@
 //Copyright(c) 2015~2016 FrankHXW,All rights reserved.
 ************************************************************************/
 #include "cameraControl.h"
+#include <numeric>      // std::accumulate
 
 
 CameraParametersUnit::CameraParametersUnit()
@@ -31,16 +32,20 @@ void CameraParametersUnit::Unlock()
 }
 
 
-CameraControlThread::CameraControlThread(std::shared_ptr<cam::GenCamera> _gencamera, CameraControlMessageDeque *_cameraControlMessageDeque)
+CameraControlThread::CameraControlThread(std::vector<std::shared_ptr<cam::GenCamera>> _gencamera_s, CameraControlMessageDeque *_cameraControlMessageDeque)
 {
-    if(_gencamera && _cameraControlMessageDeque!=NULL)
+    if(_gencamera_s[0] && _cameraControlMessageDeque!=NULL)
     {
         cameraControlMessageDeque_=_cameraControlMessageDeque;
-        gencamera_ = _gencamera;
+        gencamera_s_ = _gencamera_s;
         if(!StartInternalThread())
         {
             cout << "[INFO] CameraControlThread failed to start!" << endl;
             syslog(LOG_WARNING, "[Action] CameraControlThread failed to start!\n");
+        }
+        if(gencamera_s_.size() == 0)
+        {
+            cout << "[INFO] CameraControlThread::CameraControlThread failed to start! Too few camera type" << endl;
         }
     }
     else
@@ -136,25 +141,54 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
         string gfun = requestorPtr_->genfunc_;
         if(gfun.compare("init") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->init();
-            //cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
-            //<< "init return :"<< requestorPtr_->gendata_.void_func.return_val << endl;
-            //TODO: now only Jpeg
-            gencamera_->setCamBufferType(cam::GenCamBufferType::JPEG);
+            camInfos.clear();
+            camera_count_.clear();
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->init();
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+                //TODO: now only JPEG!
+                gencamera_s_[i]->setCamBufferType(cam::GenCamBufferType::JPEG);
+
+                //Get count for each type of the camera
+                std::vector<cam::GenCamInfo> tmp_camInfos;
+                gencamera_s_[i]->getCamInfos(tmp_camInfos);
+                camInfos.insert(camInfos.end(), tmp_camInfos.begin(), tmp_camInfos.end());
+                camera_count_.push_back(tmp_camInfos.size());
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("startCapture") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->startCapture();
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->startCapture();
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("getCamInfos") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->getCamInfos(
-                camInfos
-            );
-            imgdata.resize(camInfos.size());
+            camInfos.clear();
+            int tmp_ret_all = 0;
+            imgdata_s.resize(gencamera_s_.size());
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                std::vector<cam::GenCamInfo> tmp_camInfos;
+                int tmp_ret = gencamera_s_[i]->getCamInfos(
+                tmp_camInfos
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+                camInfos.insert(camInfos.end(), tmp_camInfos.begin(), tmp_camInfos.end());
+                imgdata_s[i].resize(tmp_camInfos.size());
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            //imgdata.resize(camInfos.size());
             if(camInfos.size() > MAX_CAMERA_NUM)
             {
                 cout << Colormod::red << "[ERROR]" << Colormod::def << 
@@ -189,156 +223,413 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
 
                 requestorPtr_->gendata_.caminfo_func.camInfos[i].sn[camInfos[i].sn.size()] = 0;//make sure ends with '\0'
                 cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
-                << "camInfos[i].sn.size() :" << camInfos[i].sn.size()
-                << "Caminfo_sn "<< i << ":" 
-                << requestorPtr_->gendata_.caminfo_func.camInfos[i].sn << " Width = " << requestorPtr_->gendata_.caminfo_func.camInfos[i].width << endl;
+                << "camInfos[i].sn.size() : " << camInfos[i].sn.size()
+                << " Caminfo_sn "<< i << " : " 
+                << requestorPtr_->gendata_.caminfo_func.camInfos[i].sn << endl;
             }
 
         }
         else if(gfun.compare("setFPS") == 0)
         {
-            cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
-            << "Set fps :"<< requestorPtr_->gendata_.param_func.param_int[0] << " " <<  
-                requestorPtr_->gendata_.param_func.param_float[0] << " " <<
-                requestorPtr_->gendata_.param_func.param_float[1] << endl;
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setFPS(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                requestorPtr_->gendata_.param_func.param_float[0],
-                requestorPtr_->gendata_.param_func.param_float[1]
-            );
+            // cout << Colormod::magenta << "[SHADOWK]"<< Colormod::def 
+            // << "Set fps :"<< requestorPtr_->gendata_.param_func.param_int[0] << " " <<  
+            //     requestorPtr_->gendata_.param_func.param_float[0] << " " <<
+            //     requestorPtr_->gendata_.param_func.param_float[1] << endl;
+
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setFPS(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    requestorPtr_->gendata_.param_func.param_float[0],
+                    requestorPtr_->gendata_.param_func.param_float[1]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setFPS(
+                        sub_index,
+                        requestorPtr_->gendata_.param_func.param_float[0],
+                        requestorPtr_->gendata_.param_func.param_float[1]
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("setAutoWhiteBalance") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setAutoWhiteBalance(
-                requestorPtr_->gendata_.param_func.param_int[0]
-            );
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setAutoWhiteBalance(
+                    requestorPtr_->gendata_.param_func.param_int[0]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setAutoWhiteBalance(
+                        sub_index
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
-        else if(gfun.compare("setWhiteBalance") == 0)
-        {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setWhiteBalance(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                requestorPtr_->gendata_.param_func.param_float[0],
-                requestorPtr_->gendata_.param_func.param_float[1],
-                requestorPtr_->gendata_.param_func.param_float[2]
-            );
+        else if(gfun.compare("setWhiteBalance") == 0)  
+        {            
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setWhiteBalance(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    requestorPtr_->gendata_.param_func.param_float[0],
+                    requestorPtr_->gendata_.param_func.param_float[1],
+                    requestorPtr_->gendata_.param_func.param_float[2]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setWhiteBalance(
+                        sub_index,
+                        requestorPtr_->gendata_.param_func.param_float[0],
+                        requestorPtr_->gendata_.param_func.param_float[1],
+                        requestorPtr_->gendata_.param_func.param_float[2]
+                    );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("setAutoExposure") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setAutoExposure(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0]
-            );
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setAutoExposure(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setAutoExposure(
+                        sub_index,
+                        (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0]
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("setAutoExposureLevel") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setAutoExposureLevel(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                requestorPtr_->gendata_.param_func.param_float[0]
-            );
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setAutoExposureLevel(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    requestorPtr_->gendata_.param_func.param_float[0]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setAutoExposureLevel(
+                        sub_index,
+                        requestorPtr_->gendata_.param_func.param_float[0]
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("setAutoExposureCompensation") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setAutoExposureCompensation(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0],
-                requestorPtr_->gendata_.param_func.param_float[0]
-            );
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setAutoExposureCompensation(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0],
+                    requestorPtr_->gendata_.param_func.param_float[0]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setAutoExposureCompensation(
+                        sub_index,
+                        (cam::Status)requestorPtr_->gendata_.param_func.param_enum[0],
+                        requestorPtr_->gendata_.param_func.param_float[0]
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("setExposure") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setExposure(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                requestorPtr_->gendata_.param_func.param_int[1]
-            );
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->setExposure(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    requestorPtr_->gendata_.param_func.param_int[1]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->setExposure(
+                        sub_index,
+                        requestorPtr_->gendata_.param_func.param_int[1]
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("getBayerPattern") == 0)
         {
-            cam::GenCamBayerPattern tmp;
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->getBayerPattern(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                tmp
-            );
-            requestorPtr_->gendata_.param_func.param_enum[0] = (int)tmp;
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                cout << Colormod::red << "[ERROR]" << Colormod::def <<
+                "CameraControlThread::getBayerPattern CameraIndex can't be -1 !" << endl;
+                requestorPtr_->gendata_.void_func.return_val = -1;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    cam::GenCamBayerPattern tmp;
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->getBayerPattern(
+                        sub_index,
+                        tmp
+                    );
+                    requestorPtr_->gendata_.param_func.param_enum[0] = (int)tmp;
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
         }
         else if(gfun.compare("makeSetEffective") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->makeSetEffective(
+
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->makeSetEffective(
                 requestorPtr_->gendata_.param_func.param_int[0]
-            );
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("setCaptureMode") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setCaptureMode(
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->setCaptureMode(
                 (cam::GenCamCaptureMode)requestorPtr_->gendata_.param_func.param_enum[0],
                 requestorPtr_->gendata_.param_func.param_int[0]
-            );
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("startCaptureThreads") == 0 && opened == false)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->startCaptureThreads();
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->startCaptureThreads();
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
             opened = true;
         }
         else if(gfun.compare("setVerbose") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setVerbose(
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->setVerbose(
                 requestorPtr_->gendata_.param_func.param_bool[0]
-            );
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("setCamBufferType") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setCamBufferType(
-                (cam::GenCamBufferType)requestorPtr_->gendata_.param_func.param_enum[0]
-            );
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->setCamBufferType(
+                    (cam::GenCamBufferType)requestorPtr_->gendata_.param_func.param_enum[0]
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("setJPEGQuality") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setJPEGQuality(
-                requestorPtr_->gendata_.param_func.param_int[0],
-                requestorPtr_->gendata_.param_func.param_float[0]
-            );
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->setJPEGQuality(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    requestorPtr_->gendata_.param_func.param_float[0]
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("setCapturePurpose") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->setCapturePurpose(
-                (cam::GenCamCapturePurpose)requestorPtr_->gendata_.param_func.param_enum[0]
-            );
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->setCapturePurpose(
+                    (cam::GenCamCapturePurpose)requestorPtr_->gendata_.param_func.param_enum[0]
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("saveImages") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->saveImages(
-                requestorPtr_->gendata_.str_func.str
-            );
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->saveImages(
+                    requestorPtr_->gendata_.str_func.str
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else if(gfun.compare("saveVideos") == 0)
         {
-            requestorPtr_->gendata_.void_func.return_val = 
-            gencamera_->saveVideos(
-                requestorPtr_->gendata_.str_func.str
-            );
+            int tmp_ret_all = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                int tmp_ret = gencamera_s_[i]->saveVideos(
+                    requestorPtr_->gendata_.str_func.str
+                );
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
         else
         {
             cout << Colormod::red << "[ERROR]" << Colormod::def << 
             " CameraControlThread::OpenCamera called a unknown function!" << endl;
             requestorPtr_->gendata_.void_func.return_val = -10;
-            //requestorPtr_->action_=CameraControl_Action_Invalid;
-            //return false;
         }
 
         if(requestorPtr_->gendata_.void_func.return_val == 0)
@@ -354,34 +645,6 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
             requestorPtr_->action_=CameraControl_Action_Invalid;
             return false;
         }
-
-
-        // if(!opened)
-        // {
-
-
-        //     gencamera_->init();
-        //     gencamera_->startCapture();
-        //     gencamera_->setFPS(-1, 20);
-        //     gencamera_->setAutoExposure(-1, cam::Status::on);
-        //     gencamera_->setAutoExposureLevel(-1, 25);
-        //     gencamera_->setAutoExposureCompensation(-1, cam::Status::on, 0);
-        //     gencamera_->setAutoWhiteBalance(-1);
-        //     gencamera_->setCamBufferType(cam::GenCamBufferType::JPEG);
-        //     gencamera_->setJPEGQuality(85, 0.15);
-        //     gencamera_->setCaptureMode(cam::GenCamCaptureMode::Continous, 50);
-        //     gencamera_->setCapturePurpose(cam::GenCamCapturePurpose::Streaming);
-        //     ////cam::SysUtil::sleep(500);
-        //     gencamera_->getCamInfos(camInfos);
-        //     imgdata.resize(camInfos.size());
-        //     gencamera_->startCaptureThreads();
-
-
-        //     opened = true;
-            
-        // }
-        // requestorPtr_->action_=CameraControl_Action_Valid;
-        // return true;
     }
     requestorPtr_->action_=CameraControl_Action_Invalid;
     return false;
@@ -391,8 +654,11 @@ bool CameraControlThread::CloseCamera(CameraControlMessage *requestorPtr_)
 {
     if(requestorPtr_!=NULL && opened == true)
     {
-        gencamera_->stopCaptureThreads();
-        gencamera_->release();
+        for(int i = 0;i < gencamera_s_.size(); i ++)
+        {
+            gencamera_s_[i]->stopCaptureThreads();
+            gencamera_s_[i]->release();
+        }
         opened = false;
         requestorPtr_->action_=CameraControl_Action_Valid;
         return true;
@@ -403,20 +669,24 @@ bool CameraControlThread::CloseCamera(CameraControlMessage *requestorPtr_)
 
 bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
 {
-    //printf("[SHADOWK] GetImage inside function\n");
     if(requestorPtr_!=NULL)
     {
-        gencamera_->captureFrame(imgdata);
-        //cout <<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] GenCamera captureFrame" << endl;
-        requestorPtr_->imageamount = imgdata.size();
         int32_t pointer = 0;
-        for(int i = 0;i < imgdata.size(); i++)
+        requestorPtr_->imageamount = 0;
+        for(int j = 0;j < gencamera_s_.size(); j++)
         {
-            cout << Colormod::magenta<<"[SHADOWK] imgdata_size"<<Colormod::def<<imgdata[i].length <<endl;
-            memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata[i].length)), sizeof(int));
-            pointer += sizeof(int);
-            memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(imgdata[i].data), imgdata[i].length);
-            pointer += imgdata[i].length;
+            
+            gencamera_s_[j]->captureFrame(imgdata_s[j]);
+            requestorPtr_->imageamount += imgdata_s[j].size();
+            
+            for(int i = 0;i < imgdata_s[j].size(); i++)
+            {
+                cout << Colormod::magenta<<"[SHADOWK] imgdata_size"<<Colormod::def<<imgdata_s[j][i].length <<endl;
+                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata_s[j][i].length)), sizeof(int));
+                pointer += sizeof(int);
+                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(imgdata_s[j][i].data), imgdata_s[j][i].length);
+                pointer += imgdata_s[j][i].length;
+            }
         }
         requestorPtr_->imagelen = pointer;
         requestorPtr_->action_=CameraControl_Action_Valid;
@@ -424,6 +694,42 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
     }
     requestorPtr_->action_=CameraControl_Action_Invalid;
     return false;
+}
+
+bool CameraControlThread::get_camera_index(int index_all, int &index_camera, int &index_sub)
+{
+    if(camera_count_.size() <= 0)
+    {
+        cout << Colormod::red << "[ERROR] " << Colormod::def <<
+        "CameraControlThread::get_camera_index camera_count_.size() <= 0 !" << endl;
+        return false;
+    }
+    if(index_all <= -1 || 
+    index_all >= std::accumulate(camera_count_.begin(), camera_count_.end(), 0))
+    {
+        cout << Colormod::red << "[ERROR] " << Colormod::def <<
+        "CameraControlThread::get_camera_index CameraIndex too large !" << endl;
+        return false;
+    }
+    int acc = 0;
+    for(int i = 0;i < camera_count_.size(); i ++)
+    {
+        if(camera_count_[i] == 0)
+        {
+            cout << Colormod::red << "[ERROR] " << Colormod::def <<
+            "CameraControlThread::get_camera_index camera_count_[" << i << "] == 0 !" << endl;
+            return false;
+        }
+        if(index_all >= camera_count_[i] + acc)
+        {
+            acc += camera_count_[i];
+            continue;
+        }
+        index_camera = i;
+        index_sub = index_all - acc;
+        break;
+    }
+    return true;
 }
 
 

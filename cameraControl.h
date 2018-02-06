@@ -17,6 +17,19 @@
 
 #include "camera_driver/GenCameraDriver.h"
 
+
+///相机控制线程处理各命令所需最长时间
+static const int verifyCameraThreadExitMaxMs=500;
+static const int verifyCameraOpenBoxMaxMs=5000;
+static const int verifyCameraCloseBoxMaxMs=5000;
+static const int verifyCameraOpenCameraMaxMs=15000;
+static const int verifyCameraCloseCameraMaxMs=5000;
+static const int verifyCameraTriggerContinousMaxMs=5000;
+static const int verifyCameraTriggerSingleMaxMs=5000;
+static const int verifyCameraResetIdMaxMs=5000;
+static const int verifyCameraGetTemperatureMaxMs=5000;
+static const int verifyCameraGetImageMaxMs=5000;
+
 #define MAX_CAMERA_NUM 8
 #define MAX_PARAM_NUM 10
 #define MAX_PATH_LEN 256
@@ -168,19 +181,6 @@ private:
 //     PMutex mutex_;
 // };
 
-
-
-///相机控制线程处理各命令所需最长时间
-static const int verifyCameraThreadExitMaxMs=500;
-static const int verifyCameraOpenBoxMaxMs=5000;
-static const int verifyCameraCloseBoxMaxMs=5000;
-static const int verifyCameraOpenCameraMaxMs=10000;
-static const int verifyCameraCloseCameraMaxMs=5000;
-static const int verifyCameraTriggerContinousMaxMs=5000;
-static const int verifyCameraTriggerSingleMaxMs=5000;
-static const int verifyCameraResetIdMaxMs=5000;
-static const int verifyCameraGetTemperatureMaxMs=5000;
-static const int verifyCameraGetImageMaxMs=5000;
 
 ///相机控制线程动作
 enum CameraControl_Action
@@ -337,7 +337,7 @@ typedef ThreadMessageDeque<CameraControlMessage>  CameraControlMessageDeque;
 class CameraControlThread:public PThreadClass
 {
 public:
-    CameraControlThread(std::shared_ptr<cam::GenCamera> _gencamera, CameraControlMessageDeque *_cameraControlMessageDeque);
+    CameraControlThread(std::vector<std::shared_ptr<cam::GenCamera>> _gencamera_s, CameraControlMessageDeque *_cameraControlMessageDeque);
     ~CameraControlThread();
 
     virtual int Run(void);
@@ -347,8 +347,10 @@ private:
     ///相机参数和消息队列入口
     //CameraServerUnit *cameraServerUnit_;
     CameraControlMessageDeque *cameraControlMessageDeque_;
-    std::shared_ptr<cam::GenCamera> gencamera_;
-    std::vector<cam::Imagedata> imgdata;
+    std::vector<std::shared_ptr<cam::GenCamera>> gencamera_s_;
+    std::vector<int> camera_count_;
+    //std::shared_ptr<cam::GenCamera> gencamera_;
+    std::vector<std::vector<cam::Imagedata>> imgdata_s;
     std::vector<cam::GenCamInfo> camInfos;
     bool opened = false;
 
@@ -373,7 +375,7 @@ private:
 //    ///用户捕捉完成数据回调函数
 //    static void CaptureCallbackFuncEntry(int lDevIndex, CMVImage* lCallBackImg, void* This){((CameraControlThread *)This)->CaptureOneFinished(lDevIndex,lCallBackImg);}
 //    static void MessageCallbackFuncEntry(int lDevIndex, MV_MESSAGE lMsg, void* This){((CameraControlThread *)This)->CaptureMessage(lDevIndex,lMsg); }
-
+    bool get_camera_index(int index_all, int &index_camera, int &index_sub);
     void Resize(uint16_t *imgSrc, uint16_t *imgDst, uint32_t scale, uint32_t widthDst, uint32_t heightDst);
 };
 
