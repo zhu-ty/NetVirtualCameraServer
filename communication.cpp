@@ -398,7 +398,7 @@ bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
 
     cameraControlMessageDeque_->PushBack(&cameraControlMessage_);
 
-    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid, verifyCameraOpenCameraMaxMs))
+    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid, verifyCameraOpenCameraMaxMs * cameraControlMessage_.cameraAmount_))
     {
     case CameraControl_Action_Invalid:
     {
@@ -438,7 +438,7 @@ bool SocketThread::VerifyCloseCamera(CameraCloseCameraPackage &_data)
     cameraControlMessage_.cameraIndex_=_data.cameraIndex_;
     cameraControlMessageDeque_->PushBack(&cameraControlMessage_);
 
-    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraCloseCameraMaxMs))
+    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraCloseCameraMaxMs * cameraControlMessage_.cameraAmount_))
     {
     case CameraControl_Action_Invalid:
     {
@@ -501,7 +501,7 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
         _data.cameraAmount_ = cameraControlMessage_.imageamount;
         memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
         sendPackage_.dataSize_=sizeof(CameraGetImagePackage) +
-                               cameraControlMessage_.imagelen;
+                                cameraControlMessage_.imagelen;
         cout << "[INFO] SocketThread: " << thisName_ << " CameraControl_Get_Image valid!" << endl;
         //cout << "[INFO] CameraIndex: " << Colormod::blue << _data.cameraIndex_ << Colormod::def << endl;
         sendPackage_.status_=Communication_Camera_Get_Image_Ok;
