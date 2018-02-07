@@ -398,7 +398,7 @@ bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
 
     cameraControlMessageDeque_->PushBack(&cameraControlMessage_);
 
-    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid, verifyCameraOpenCameraMaxMs * cameraControlMessage_.cameraAmount_))
+    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid, verifyCameraOpenCameraMaxMs * _data.cameraAmount_))
     {
     case CameraControl_Action_Invalid:
     {
@@ -438,7 +438,7 @@ bool SocketThread::VerifyCloseCamera(CameraCloseCameraPackage &_data)
     cameraControlMessage_.cameraIndex_=_data.cameraIndex_;
     cameraControlMessageDeque_->PushBack(&cameraControlMessage_);
 
-    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraCloseCameraMaxMs * cameraControlMessage_.cameraAmount_))
+    switch(cameraControlMessage_.VerifyAction(CameraControl_Action_Valid,verifyCameraCloseCameraMaxMs * _data.cameraAmount_))
     {
     case CameraControl_Action_Invalid:
     {
