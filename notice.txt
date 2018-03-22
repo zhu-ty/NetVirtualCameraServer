@@ -35,3 +35,11 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet splash usbcore.usbfs_memory_mb=1000"
 Update grub with these settings:
 $ sudo update-grub
 Reboot and test a USB 3.1 camera.
+
+
+
+XIEMA install:
+
+./install -cam_usb30
+
+
