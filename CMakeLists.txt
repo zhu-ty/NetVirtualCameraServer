@@ -5,6 +5,34 @@
 # For an introduction to CMake, see
 # http://www.cmake.org/cmake/help/cmake_tutorial.html (at least steps 1 and 2)
 
+message(
+"
+       
+           ┌─┐       ┌─┐
+        ┌──┘ ┴───────┘ ┴──┐
+        │                 │
+        │       ───       │
+        │  ─┬┘       └┬─  │
+        │                 │
+        │       ─┴─       │
+        │                 │
+        └───┐         ┌───┘
+            │         │
+            │         │
+            │         │
+            │         └──────────────┐
+            │                        │
+            │                        ├─┐
+            │                        ┌─┘    
+            │                        │
+            └─┐  ┐  ┌───────┬──┐  ┌──┘         
+              │ ─┤ ─┤       │ ─┤ ─┤         
+              └──┴──┘       └──┴──┘ 
+                  神兽  保佑 
+                  代码无BUG! 
+  
+")
+
 cmake_minimum_required (VERSION 3.10)
 set(name "NetVirtualCameraServer")
 project ( ${name} )
