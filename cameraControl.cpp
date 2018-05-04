@@ -696,7 +696,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
             std::vector<cam::GenCamImgRatio> ratios;
             for(int factor_idx = 0;factor_idx < camera_count_[j]; factor_idx++)
             {
-                ratios[i] = (requestorPtr->resizeFactor_ >> (factor_idx * 4)) & (int)0x0f;
+                ratios[factor_idx] = (cam::GenCamImgRatio)((requestorPtr_->resizeFactor_ >> (factor_idx * 4)) & (int)0x0f);
             }
             gencamera_s_[j]->setImageRatios(ratios);
             //jpeg len / ratio size / img data
