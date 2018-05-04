@@ -160,6 +160,24 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
             }
             requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
         }
+        else if(gfun.compare("setImageRatios") == 0)
+        {
+            int tmp_ret_all = 0;
+            int data_idx = 0;
+            for(int i = 0;i < gencamera_s_.size(); i ++)
+            {
+                std::vector<cam::GenCamImgRatio> ratio_vector(camera_count_[i]);
+                for(int j = 0; j < camera_count_[i];j++)
+                {
+                    ratio_vector[j] = (cam::GenCamImgRatio)requestorPtr_->gendata_.param_func.param_int[data_idx];
+                    data_idx++;
+                }
+                int tmp_ret = gencamera_s_[i]->setImageRatios(ratio_vector);
+                if(tmp_ret != 0)
+                    tmp_ret_all = tmp_ret;
+            }
+            requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+        }
         else if(gfun.compare("startCapture") == 0)
         {
             int tmp_ret_all = 0;
@@ -675,7 +693,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
         requestorPtr_->imageamount = 0;
         for(int j = 0;j < gencamera_s_.size(); j++)
         {
-            
+            //jpeg len / ratio size / img data
             gencamera_s_[j]->captureFrame(imgdata_s[j]);
             requestorPtr_->imageamount += imgdata_s[j].size();
             
@@ -683,6 +701,8 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
             {
                 cout << Colormod::magenta<<"[SHADOWK] imgdata_size"<<Colormod::def<<imgdata_s[j][i].length <<endl;
                 memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata_s[j][i].length)), sizeof(int));
+                pointer += sizeof(int);
+                memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata_s[j][i].ratio)), sizeof(int));
                 pointer += sizeof(int);
                 memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(imgdata_s[j][i].data), imgdata_s[j][i].length);
                 pointer += imgdata_s[j][i].length;
