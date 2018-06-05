@@ -1,14 +1,12 @@
 zhu-ty-bbnc@10.8.5.216
 
-gcc4.9
-g++4.9
 
-setterm --blank 0
+setterm --blank 0 (poke?)
 
 
 OpenCV Error: Unspecified error (The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Carbon support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script) in cvShowImage
 
-sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libopenblas-dev liblapack-dev libatlas-base-dev libgflags-dev libgoogle-glog-dev liblmdb-dev libgtk2.0-dev pkg-config
+sudo apt-get install build-essential git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libopenblas-dev liblapack-dev libatlas-base-dev libgflags-dev libgoogle-glog-dev liblmdb-dev libgtk2.0-dev pkg-config
 
 sudo apt-get install --no-install-recommends libboost-all-dev
 
@@ -21,6 +19,7 @@ cd /usr/local/cuda-8.0/samples/1_Utilities/deviceQuerymakesudo ./deviceQuery
 
 
 opencv video build option (use ccmake)
+NO: test perf
 
 https://www.ptgrey.com/KB/10942
 
