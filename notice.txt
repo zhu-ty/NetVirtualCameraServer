@@ -15,7 +15,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda8.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_
 
 cd /usr/local/cuda-8.0/samples/1_Utilities/deviceQuerymakesudo ./deviceQuery
 
-
+sudo vim /etc/systemd/system/network-online.targets.wants/networking.service
 
 
 opencv video build option (use ccmake)
