@@ -274,6 +274,31 @@ int SocketThread::Run(void)
         {
             if(readByteSize >= 4)
             {
+                if(receivePackage_.command_ == Communication_Camera_Get_Status)
+                {
+                    
+                }
+                else if(receivePackage_.command_ == Communication_Camera_Open_Camera)
+                {
+                    while(readByteSize < sizeof(CameraOpenCameraPackage))
+                    {
+                        readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraOpenCameraPackage) - readByteSize);
+                    }
+                }
+                else if(receivePackage_.command_ == Communication_Camera_Close_Camera)
+                {
+                    while(readByteSize < sizeof(CameraCloseCameraPackage))
+                    {
+                        readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraCloseCameraPackage) - readByteSize);
+                    }
+                }
+                else if(receivePackage_.command_ == Communication_Camera_Get_Image)
+                {
+                    while(readByteSize < sizeof(CameraGetImagePackage))
+                    {
+                        readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraGetImagePackage) - readByteSize);
+                    }
+                }
                 ParseAndFeedback();
                 lastCheckTime=GetCurrentTimeMs();
             }
