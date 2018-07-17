@@ -462,6 +462,40 @@ bool CameraControlThread::OpenCamera(CameraControlMessage *requestorPtr_)
                 }
             }
         }
+        else if(gfun.compare("adjustBrightness") == 0)
+        {
+            if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
+            {
+                int tmp_ret_all = 0;
+                for(int i = 0;i < gencamera_s_.size(); i ++)
+                {
+                    int tmp_ret = gencamera_s_[i]->adjustBrightness(
+                    requestorPtr_->gendata_.param_func.param_int[0],
+                    requestorPtr_->gendata_.param_func.param_int[1]
+                    );
+                    if(tmp_ret != 0)
+                        tmp_ret_all = tmp_ret;
+                }
+                requestorPtr_->gendata_.void_func.return_val = tmp_ret_all;
+            }
+            else
+            {
+                int driver_index, sub_index;
+                if(get_camera_index(requestorPtr_->gendata_.param_func.param_int[0],
+                driver_index, sub_index))
+                {
+                    requestorPtr_->gendata_.void_func.return_val = 
+                    gencamera_s_[driver_index]->adjustBrightness(
+                        sub_index,
+                        requestorPtr_->gendata_.param_func.param_int[1]
+                        );
+                }
+                else
+                {
+                    requestorPtr_->gendata_.void_func.return_val = -1;
+                }
+            }
+        }
         else if(gfun.compare("setExposure") == 0)
         {
             if(requestorPtr_->gendata_.param_func.param_int[0] == -1)
