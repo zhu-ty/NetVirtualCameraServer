@@ -274,6 +274,7 @@ int SocketThread::Run(void)
         {
             if(readByteSize >= 4)
             {
+                
                 if(receivePackage_.command_ == Communication_Camera_Get_Status)
                 {
                     
@@ -299,6 +300,9 @@ int SocketThread::Run(void)
                         readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraGetImagePackage) - readByteSize);
                     }
                 }
+                cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
+                " received "<< Colormod::blue << readByteSize << Colormod::def <<" bytes. "<<
+                endl;
                 ParseAndFeedback();
                 lastCheckTime=GetCurrentTimeMs();
             }
