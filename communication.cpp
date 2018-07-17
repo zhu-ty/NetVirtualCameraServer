@@ -270,42 +270,62 @@ int SocketThread::Run(void)
         SleepUs(200);
         currentCheckTime=GetCurrentTimeMs();
         int readByteSize=-1;
-        if((readByteSize=read(serverFd_,&receivePackage_,sizeof(receivePackage_)))>0)
+        readByteSize=read(serverFd_,&receivePackage_,sizeof(CommunicationServerReceivePackageTypdef));
+        if(readByteSize>0)
         {
-            if(readByteSize >= 4)
+            //cout << readByteSize << " "<<sizeof(CommunicationServerReceivePackageTypdef)<<endl;
+            while(readByteSize < sizeof(CommunicationServerReceivePackageTypdef))
             {
-                
-                if(receivePackage_.command_ == Communication_Camera_Get_Status)
+                SleepUs(200);
+                int this_time_read = read(serverFd_,((char *)(&receivePackage_)) + readByteSize,sizeof(CommunicationServerReceivePackageTypdef) - readByteSize);
+                if(this_time_read == -1)
                 {
-                    
-                }
-                else if(receivePackage_.command_ == Communication_Camera_Open_Camera)
-                {
-                    while(readByteSize < sizeof(CameraOpenCameraPackage))
+                    if(errno != 11)
                     {
-                        readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraOpenCameraPackage) - readByteSize);
+                        cout << "SocketThread::Run read ERRNO: " <<errno << endl;
+                        break;
                     }
                 }
-                else if(receivePackage_.command_ == Communication_Camera_Close_Camera)
+                if(this_time_read > 0)
                 {
-                    while(readByteSize < sizeof(CameraCloseCameraPackage))
-                    {
-                        readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraCloseCameraPackage) - readByteSize);
-                    }
+                    //cout << this_time_read << endl;
+                    readByteSize += this_time_read;
                 }
-                else if(receivePackage_.command_ == Communication_Camera_Get_Image)
-                {
-                    while(readByteSize < sizeof(CameraGetImagePackage))
-                    {
-                        readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraGetImagePackage) - readByteSize);
-                    }
-                }
-                cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
-                " received "<< Colormod::blue << readByteSize << Colormod::def <<" bytes. "<<
-                endl;
-                ParseAndFeedback();
-                lastCheckTime=GetCurrentTimeMs();
             }
+
+            // if(readByteSize >= 4)
+            // {
+                
+            //     if(receivePackage_.command_ == Communication_Camera_Get_Status)
+            //     {
+                    
+            //     }
+            //     else if(receivePackage_.command_ == Communication_Camera_Open_Camera)
+            //     {
+            //         while(readByteSize < sizeof(CameraOpenCameraPackage))
+            //         {
+            //             readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraOpenCameraPackage) - readByteSize);
+            //         }
+            //     }
+            //     else if(receivePackage_.command_ == Communication_Camera_Close_Camera)
+            //     {
+            //         while(readByteSize < sizeof(CameraCloseCameraPackage))
+            //         {
+            //             readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraCloseCameraPackage) - readByteSize);
+            //         }
+            //     }
+            //     else if(receivePackage_.command_ == Communication_Camera_Get_Image)
+            //     {
+            //         while(readByteSize < sizeof(CameraGetImagePackage))
+            //         {
+            //             readByteSize += read(serverFd_,&receivePackage_ + readByteSize,sizeof(CameraGetImagePackage) - readByteSize);
+            //         }
+            //     }
+            cout<<Colormod::magenta<<"[SHADOWK]"<<Colormod::def<<"[INFO] SocketThread: "<<thisName_<< 
+            " received "<< Colormod::blue << readByteSize << Colormod::def <<" bytes. "<< endl;
+            ParseAndFeedback();
+            lastCheckTime=GetCurrentTimeMs();
+            //}
         }
         else if((currentCheckTime-lastCheckTime)>heartBeatIntervalMs_)
         {
