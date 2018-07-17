@@ -217,7 +217,7 @@ SocketThread::SocketThread(int _newServerFd,string _clientIp,int16_t _clientPort
         std::ostringstream strTmp("");
         strTmp<<_clientIp<<":"<<clientPort_;
         thisName_=strTmp.str();
-        cameraControlMessage_.requestor_=thisName_;
+        //cameraControlMessage_.requestor_=thisName_;
         communicationMessageDeque_=_communicationMessageDeque;
         cameraControlMessageDeque_=_cameraControlMessageDeque;
         sendPackage_.data_=new char[CAMERA_IMAGE_DATA_MAX_SIZE];
@@ -386,6 +386,7 @@ void SocketThread::ParseAndFeedback(void)
 bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
 {
     ///添加至消息队列并超时等待反馈
+    CameraControlMessage cameraControlMessage_;
     cameraControlMessage_.action_=CameraControl_Open_Camera;
     cameraControlMessage_.boxIndex_=_data.boxIndex_;
     cameraControlMessage_.cameraIndex_=_data.cameraIndex_;
@@ -433,6 +434,7 @@ bool SocketThread::VerifyOpenCamera(CameraOpenCameraPackage &_data)
 
 bool SocketThread::VerifyCloseCamera(CameraCloseCameraPackage &_data)
 {
+    CameraControlMessage cameraControlMessage_;
     cameraControlMessage_.action_=CameraControl_Close_Camera;
     cameraControlMessage_.boxIndex_=_data.boxIndex_;
     cameraControlMessage_.cameraIndex_=_data.cameraIndex_;
@@ -468,6 +470,7 @@ bool SocketThread::VerifyCloseCamera(CameraCloseCameraPackage &_data)
 bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
 {
     ///添加至消息队列并超时等待反馈
+    CameraControlMessage cameraControlMessage_;
     cameraControlMessage_.action_=CameraControl_Get_Image;
     cameraControlMessage_.boxIndex_=_data.boxIndex_;
     cameraControlMessage_.cameraIndex_=_data.cameraIndex_;

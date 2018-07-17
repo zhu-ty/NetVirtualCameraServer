@@ -474,7 +474,7 @@ private:
     CommunicationServerSendPackageTypeDef   sendPackage_;
 
     ///本线程向其它线程发送的消息
-    CameraControlMessage cameraControlMessage_;
+    //CameraControlMessage cameraControlMessage_;
 
     ///相机参数和消息队列入口
     CommunicationMessageDeque *communicationMessageDeque_;
