@@ -30,7 +30,7 @@ static const int verifyCameraResetIdMaxMs=5000;
 static const int verifyCameraGetTemperatureMaxMs=5000;
 static const int verifyCameraGetImageMaxMs=5000;
 
-#define MAX_CAMERA_NUM 8
+#define MAX_CAMERA_NUM 10
 #define MAX_PARAM_NUM 10
 #define MAX_PATH_LEN 256
 #define MAX_SN_LEN MAX_PATH_LEN
@@ -226,7 +226,7 @@ public:
     int32_t triggerNumber_=0;                                       ///欲触发的数目，-1：无限，1：1张,只在触发单张的时候起作用
     string saveName_="tmp";                                         ///保存的图片名称，只在触发单张的时候起作用
     int32_t imageType_=2;                                           ///图像类型，1:Mono_8Bit,2:Mono_16Bit,3:Color_8Bit,
-    int32_t resizeFactor_=1;                                        ///图片缩放尺寸，用于客户端获取单张时使用
+    int64_t resizeFactor_=1;                                        ///图片缩放尺寸，用于客户端获取单张时使用
     int32_t resizedWidth_=2560;                                     ///反馈的图像缩放后宽度，
     int32_t resizedHeight_=2160;                                    ///反馈的图像缩放后高度
     char *imageData_=NULL;                                          ///反馈的图像起始地址，由通信线程分配
