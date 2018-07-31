@@ -30,8 +30,8 @@ static const int verifyCameraResetIdMaxMs=5000;
 static const int verifyCameraGetTemperatureMaxMs=5000;
 static const int verifyCameraGetImageMaxMs=5000;
 
-#define MAX_CAMERA_NUM 10
-#define MAX_PARAM_NUM 10
+#define MAX_CAMERA_NUM 16
+#define MAX_PARAM_NUM 16
 #define MAX_PATH_LEN 256
 #define MAX_SN_LEN MAX_PATH_LEN
 static const int32_t imageWidthMin=1024;
