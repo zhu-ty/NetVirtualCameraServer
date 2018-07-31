@@ -119,6 +119,10 @@ set(CAMERA_DRIVER_HEADER_FILER
     ${CAMERA_DRIVER_DIR}/RealCameraDriver.h
     ${CAMERA_DRIVER_DIR}/NPPJpegCoder.h
     ${CAMERA_DRIVER_DIR}/FileCamera/FileCamera.h
+    ${CAMERA_DRIVER_DIR}/Stereo/StereoCamera.h
+    ${CAMERA_DRIVER_DIR}/Stereo/INIReader.h
+    ${CAMERA_DRIVER_DIR}/Stereo/StereoRectify.h
+    ${CAMERA_DRIVER_DIR}/Stereo/ExposureFusion.h
 )
 set(CAMERA_DRIVER_SOURCE_FILER
     ${CAMERA_DRIVER_DIR}/XIMEA/XIMEACamera.cpp
@@ -128,6 +132,9 @@ set(CAMERA_DRIVER_SOURCE_FILER
     ${CAMERA_DRIVER_DIR}/RealCameraDriver.cpp
     ${CAMERA_DRIVER_DIR}/NPPJpegCoder.cpp
     ${CAMERA_DRIVER_DIR}/FileCamera/FileCamera.cpp
+    ${CAMERA_DRIVER_DIR}/Stereo/StereoCamera.cpp
+    ${CAMERA_DRIVER_DIR}/Stereo/StereoRectify.cpp
+    ${CAMERA_DRIVER_DIR}/Stereo/ExposureFusion.cpp
 )
 
 include_directories(
@@ -137,6 +144,7 @@ include_directories(
     ${CAMERA_DRIVER_DIR}/XIMEA 
     ${CAMERA_DRIVER_DIR}/PointGrey
     ${CAMERA_DRIVER_DIR}/FileCamera
+    ${CAMERA_DRIVER_DIR}/Stereo
 )
 
 cuda_add_executable(${name}

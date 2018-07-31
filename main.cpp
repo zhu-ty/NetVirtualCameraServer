@@ -51,6 +51,15 @@ int main(int argc, char* argv[])
                 "Added XIMEA_xiC camera type to the list.\n" << 
                 Colormod::def << endl;
             }
+            else if(tmp_str.compare("Stereo") == 0 || tmp_str.compare("s") == 0)
+            {
+                std::shared_ptr<cam::GenCamera> cameraPtr = cam::createCamera(cam::CameraModel::Stereo);
+                camPtrVec.push_back(cameraPtr);
+                cout <<
+                Colormod::green << 
+                "Added Stereo camera type to the list.\n" << 
+                Colormod::def << endl;
+            }
             else
             {
                 cout << Colormod::red << "[ERROR]" << Colormod::def <<
