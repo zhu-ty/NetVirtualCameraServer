@@ -737,10 +737,13 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
 
             gencamera_s_[j]->captureFrame(imgdata_s[j]);
             requestorPtr_->imageamount += imgdata_s[j].size();
-            
+
+            cout << Colormod::magenta<<"[SHADOWK]" << Colormod::def << "img data size:";
+
             for(int i = 0;i < imgdata_s[j].size(); i++)
             {
-                cout << Colormod::magenta<<"[SHADOWK] imgdata_size"<<Colormod::def<<imgdata_s[j][i].length <<endl;
+                cout << Colormod::blue << imgdata_s[j][i].length << Colormod::def << "/";
+                //cout << Colormod::magenta<<"[SHADOWK] imgdata_size"<<Colormod::def<<imgdata_s[j][i].length <<endl;
                 memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata_s[j][i].length)), sizeof(int));
                 pointer += sizeof(int);
                 memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(&(imgdata_s[j][i].ratio)), sizeof(int));
@@ -748,6 +751,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
                 memcpy(requestorPtr_->imageData_ + pointer, (uint8_t *)(imgdata_s[j][i].data), imgdata_s[j][i].length);
                 pointer += imgdata_s[j][i].length;
             }
+            cout << endl;
         }
         requestorPtr_->imagelen = pointer;
         requestorPtr_->action_=CameraControl_Action_Valid;

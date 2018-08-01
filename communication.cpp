@@ -544,7 +544,7 @@ bool SocketThread::VerifyGetImage(CameraGetImagePackage &_data)
     {
         _data.cameraAmount_ = 0;
         memcpy(sendPackage_.data_,&_data,sizeof(CameraGetImagePackage));
-        cout << Colormod::red  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image invalid!" << Colormod::def <<endl;
+        //cout << Colormod::red  << "[INFO] SocketThread: "<<thisName_<<" CameraControl_Get_Image invalid!" << Colormod::def <<endl;
         sendPackage_.status_=Communication_Camera_Get_Image_Invalid;
         return false;
     }
