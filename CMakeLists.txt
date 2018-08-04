@@ -135,6 +135,7 @@ set(CAMERA_DRIVER_SOURCE_FILER
     ${CAMERA_DRIVER_DIR}/Stereo/StereoCamera.cpp
     ${CAMERA_DRIVER_DIR}/Stereo/StereoRectify.cpp
     ${CAMERA_DRIVER_DIR}/Stereo/ExposureFusion.cpp
+    ${CAMERA_DRIVER_DIR}/Stereo/ExposureFusion.cu
 )
 
 include_directories(
