@@ -725,12 +725,15 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
     {
         int32_t pointer = 0;
         requestorPtr_->imageamount = 0;
+        camInd = 0;
+        cout << Colormod::cyan << "Received Ratio :" <<std::hex << requestorPtr_->resizeFactor_ <<  std::dec << Colormod::def <<std::endl;
         for(int j = 0;j < gencamera_s_.size(); j++)
         {
             std::vector<cam::GenCamImgRatio> ratios;
             for(int factor_idx = 0;factor_idx < camera_count_[j]; factor_idx++)
             {
-                ratios.push_back((cam::GenCamImgRatio)((requestorPtr_->resizeFactor_ >> (factor_idx * 4)) & (int)0x0f));
+                ratios.push_back((cam::GenCamImgRatio)((requestorPtr_->resizeFactor_ >> (camInd * 4)) & (int64_t)0x0f));
+                camInd++;
             }
             gencamera_s_[j]->setImageRatios(ratios);
             //jpeg len / ratio size / img data
