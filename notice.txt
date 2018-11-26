@@ -1,5 +1,9 @@
 zhu-ty-bbnc@10.8.5.216
 
+for 18.04:
+sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
+sudo apt update
+sudo apt install libjasper1 libjasper-dev
 
 setterm --blank 0 (poke?)
 
@@ -10,10 +14,10 @@ sudo apt-get install build-essential git libgtk2.0-dev pkg-config libavcodec-dev
 
 sudo apt-get install --no-install-recommends libboost-all-dev
 
-export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda8.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export PATH=/usr/local/cuda-9/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-9/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
-cd /usr/local/cuda-8.0/samples/1_Utilities/deviceQuerymakesudo ./deviceQuery
+cd /usr/local/cuda-9/samples/1_Utilities/deviceQuerymakesudo ./deviceQuery
 
 sudo vim /etc/systemd/system/network-online.targets.wants/networking.service
 TimeoutStartSec=10sec
