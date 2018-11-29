@@ -45,7 +45,7 @@ https://www.ptgrey.com/KB/10942
 
 For Linux users—Increase the usbfs memory limit to 1000 MB
 To temporarily set the maximum usbfs memory limit, run this command:
-$ sudo modprobe usbcore usbfs_memory_mb=1000
+$ sudo modprobe usbcore usbfs_memory_mb=0
 To permanently set the maximum usbfs memory limit:Open the /etc/default/grub file in any text editor.
 Find and replace:
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
