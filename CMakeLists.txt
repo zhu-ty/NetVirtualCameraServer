@@ -88,6 +88,7 @@ set(CUDA_NVCC_FLAGS
     )
 
 set(MY_HEADER_FILES
+    ${MY_HEADER_FILES}
 	# C++ header file
 	#cuda/CameraUtilKernel.h
 	#cuda/NPPJpegCoderKernel.h
@@ -104,6 +105,7 @@ set(MY_HEADER_FILES
 )
 
 set(MY_SOURCE_FILES 
+    ${MY_SOURCE_FILES}
 	# C++ source file
 	#CameraUtil.cpp
 	#CameraArray.cpp
@@ -142,7 +144,44 @@ set(CAMERA_DRIVER_SOURCE_FILER
     ${CAMERA_DRIVER_DIR}/Stereo/StereoRectify.cpp
     ${CAMERA_DRIVER_DIR}/Stereo/ExposureFusion.cpp
     ${CAMERA_DRIVER_DIR}/Stereo/ExposureFusion.cu
+    ${CAMERA_DRIVER_DIR}/Stereo/DisparityProcessor.cu
 )
+
+#Stereo RealtimeDepth
+if ( NOT WIN32 )
+    FIND_PACKAGE(Eigen3 REQUIRED) 
+    include_directories(${EIGEN3_INCLUDE_DIR})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wno-unknown-pragmas -std=c++11 -msse4")  #-Wall
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wno-unknown-pragmas -msse4")  #-Wall
+    include_directories(${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth)
+    set(MY_HEADER_FILES
+        ${MY_HEADER_FILES}
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/FDF1.0.1/image.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/FDF1.0.1/opticalflow_aux.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/FDF1.0.1/solver.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/depthmap.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/GhostElemer.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/patchgrid.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/refine_variational.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/DepthMapUpdater.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/oflow.h
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/patch.h
+    )
+    set(MY_SOURCE_FILES 
+        ${MY_SOURCE_FILES}
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/FDF1.0.1/image.c
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/FDF1.0.1/opticalflow_aux.c
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/FDF1.0.1/solver.c
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/depthmap.cpp
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/GhostElemer.cpp
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/patch.cpp
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/refine_variational.cpp
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/DepthMapUpdater.cpp
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/oflow.cpp
+        ${CAMERA_DRIVER_DIR}/Stereo/RealTimeDepth/patchgrid.cpp 
+    )
+    
+endif()
 
 include_directories(
 	${PROJECT_SOURCE_DIR}	
@@ -160,6 +199,11 @@ cuda_add_executable(${name}
     ${CAMERA_DRIVER_HEADER_FILER}
     ${CAMERA_DRIVER_SOURCE_FILER}
 )
+
+if(NOT WIN32)
+    set_target_properties (${name} PROPERTIES COMPILE_DEFINITIONS "SELECTMODE=2")
+    set_target_properties (${name} PROPERTIES COMPILE_DEFINITIONS "SELECTCHANNEL=1")
+endif()
 
 target_link_libraries(${name}
 	${OpenCV_LIBS}
