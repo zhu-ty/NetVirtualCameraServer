@@ -726,7 +726,7 @@ bool CameraControlThread::GetImage(CameraControlMessage *requestorPtr_)
         int32_t pointer = 0;
         requestorPtr_->imageamount = 0;
         int camInd = 0;
-        cout << Colormod::cyan << "Received Ratio :" <<std::hex << requestorPtr_->resizeFactor_ <<  std::dec << Colormod::def <<std::endl;
+        cout << Colormod::cyan << "Received Ratio (From lower to higher [inversed]):" <<std::hex << requestorPtr_->resizeFactor_ <<  std::dec << Colormod::def <<std::endl;
         for(int j = 0;j < gencamera_s_.size(); j++)
         {
             std::vector<cam::GenCamImgRatio> ratios;
