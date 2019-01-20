@@ -147,6 +147,36 @@ set(CAMERA_DRIVER_SOURCE_FILER
     ${CAMERA_DRIVER_DIR}/Stereo/DisparityProcessor.cu
 )
 
+# NvEncoder
+set(CAMERA_DRIVER_HEADER_FILER
+    ${CAMERA_DRIVER_HEADER_FILER}
+	${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/NvEncoder/nvEncodeAPI.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/NvEncoder/NvEncoder.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/NvEncoder/NvEncoderCuda.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/Utils/Logger.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/Utils/NvEncoderCLIOptions.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/Utils/NvCodecUtils.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/SKEncoder.h
+    ${CAMERA_DRIVER_DIR}/SKEncoder/SKCommon.hpp
+)
+set(CAMERA_DRIVER_SOURCE_FILER 
+    ${CAMERA_DRIVER_SOURCE_FILER}
+	${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/NvEncoder/NvEncoder.cpp
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder/NvEncoder/NvEncoderCuda.cpp
+    ${CAMERA_DRIVER_DIR}/SKEncoder/SKEncoder.cpp
+	)
+include_directories(
+    ${CAMERA_DRIVER_DIR}/SKEncoder
+    ${CAMERA_DRIVER_DIR}/SKEncoder/NvEncoder
+)
+if( WIN32 )
+    set(NVCUVID_LIB ${CAMERA_DRIVER_DIR}/SKEncoder/lib/x64/nvcuvid.lib)
+else()
+    set(NVCUVID_LIB 
+    ${CAMERA_DRIVER_DIR}/SKEncoder/lib/linux/stubs/x86_64/libnvcuvid.so
+    ${CAMERA_DRIVER_DIR}/SKEncoder/lib/linux/stubs/x86_64/libnvidia-encode.so)
+endif()
+
 #Stereo RealtimeDepth
 if ( NOT WIN32 )
     FIND_PACKAGE(Eigen3 REQUIRED) 
@@ -206,7 +236,9 @@ if(NOT WIN32)
 endif()
 
 target_link_libraries(${name}
-	${OpenCV_LIBS}
+    ${OpenCV_LIBS}
+    cuda
+    ${NVCUVID_LIB}
 	${CUDA_LIBRARY}  
     ${CUDA_npp_LIBRARY} 
     ${CUDA_nppc_LIBRARY} 
